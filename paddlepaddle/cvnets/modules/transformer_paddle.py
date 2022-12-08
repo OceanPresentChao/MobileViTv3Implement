@@ -192,7 +192,7 @@ class LinearAttnFFN(BaseModule):
         attn_unit = LinearSelfAttention(
             opts, embed_dim=embed_dim, attn_dropout=attn_dropout, bias=True
         )
-
+        # 两个layer
         self.pre_norm_attn = nn.Sequential(
             get_normalization_layer(
                 opts=opts, norm_type=norm_layer, num_features=embed_dim
@@ -200,7 +200,7 @@ class LinearAttnFFN(BaseModule):
             attn_unit,
             Dropout(p=dropout),
         )
-
+        # 两个layer
         self.pre_norm_ffn = nn.Sequential(
             get_normalization_layer(
                 opts=opts, norm_type=norm_layer, num_features=embed_dim

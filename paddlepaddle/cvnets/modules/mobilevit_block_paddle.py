@@ -878,7 +878,9 @@ class MobileViTBlockv3(BaseModule):
         # ensure that dims are multiple of 16
         ffn_dims = [int((d // 16) * 16) for d in ffn_dims]
 
+        # global_rep循环两次
         global_rep = [
+            # pre_norm_ffn在这里面
             LinearAttnFFN(
                 opts=opts,
                 embed_dim=d_model,

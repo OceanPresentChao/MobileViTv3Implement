@@ -19,12 +19,30 @@ sys.argv[1:] = ['--common.config-file',
 
 def printParameters(model,filename):
     with open(filename, "w") as f:
-            for param in model.parameters():
-                f.write(str(param.shape)+str(param))
+            for name, param in model.named_parameters():
+                f.write(str(name)+ '  '+ str(param.shape)+'\n')
     f.close()
 
-def compareParam():
-    
+def compareParam(torch, paddle):
+    torch_list = [{'name':name, 'value': param} for name, param in torch.named_parameters()]
+    paddle_list = [{'name':name, 'value': param} for name, param in paddle.named_parameters()]
+    with open("./result/param_diff.txt", "w") as f:
+        ti = 0
+        pi = 0
+        while ti < len(torch_list) and pi < len(paddle_list):
+            if "_mean" in paddle_list[pi]['name'] or "_variance" in paddle_list[pi]['name']:
+                pi += 1
+                continue
+            if torch_list[ti]['name'] == paddle_list[pi]['name']:
+                name = torch_list[ti]['name']
+                torch_value = torch_list[ti]['value'].detach().cpu().numpy()
+                paddle_value = paddle_list[pi]['value'].detach().cpu().numpy()
+                res = np.subtract(paddle_value,torch_value,dtype=np.float64)
+                f.write(str(name) + ': '+str(res) + '\n')
+            ti += 1
+            pi += 1
+
+
 
 def test_forword():
     device = 'cpu'
@@ -38,10 +56,13 @@ def test_forword():
 
     # printParameters(paddle_model,"./result/param_paddle.txt")
     # printParameters(torch_model,"./result/param_torch.txt")
-    print(paddle.summary(paddle_model, input_size=(1, 3, 256, 256)))
-    torch_summary(torch_model, input_size=(3, 256, 256))
+    # print(paddle.summary(paddle_model, input_size=(1, 3, 256, 256)))
+    # torch_summary(torch_model, input_size=(3, 256, 256))
+
+    # compareParam(torch_model, paddle_model)
+
+
     
-    return
     # save the paddle output
     reprod_logger = ReprodLogger()
     paddle_out = paddle_model(paddle.to_tensor(inputs, dtype="float32"))
@@ -65,20 +86,20 @@ def loadModels():
 
     # load torch model
     torch_model = build_model_ref(opts)
-    torch_model.eval()
     torch_state_dict = torch.load("./data/torch.pt",map_location=torch_device)
     torch_model.load_state_dict(torch_state_dict)
     torch_model.to(torch_device)
+    torch_model.eval()
 
     # load paddle model
     paddle_model = build_model_pad(opts)
-    paddle_model.eval()
     paddle_state_dict = paddle.load("./data/paddle.pdparams")
     paddle_model.set_state_dict(paddle_state_dict)
+    paddle_model.eval()
 
     
 
-    # load_torch_params(paddle_model, torch_state_dict)
+    load_torch_params(paddle_model, torch_state_dict)
 
     return paddle_model,torch_model
 
@@ -117,6 +138,6 @@ def compareOutput():
 
 if __name__ == "__main__":
     test_forword()
-    # compareOutput()
+    compareOutput()
 
 

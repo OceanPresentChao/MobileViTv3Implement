@@ -163,7 +163,8 @@ class ConvLayer(BaseLayer):
             padding=padding,
             dilation=dilation,
             groups=groups,
-            bias=bias,
+            #这里的bias_attr是一个bool值，如果为True，则添加一个偏置项，如果为False，则不添加偏置项。参数名不是bias！！！
+            bias_attr=bias,
             padding_mode=padding_mode,
         )
 
