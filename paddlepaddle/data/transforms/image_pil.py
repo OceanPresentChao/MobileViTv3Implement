@@ -8,7 +8,7 @@ from PIL import Image, ImageFilter
 from utils import logger
 import numpy as np
 import random
-import torch
+import paddle
 import math
 import argparse
 from paddle.vision import transforms as T
@@ -20,17 +20,17 @@ from . import register_transformations, BaseTransformation
 from .utils import jaccard_numpy, setup_size
 
 INTERPOLATION_MODE_MAP = {
-    "nearest": InterpolationMode.NEAREST,
-    "bilinear": InterpolationMode.BILINEAR,
-    "bicubic": InterpolationMode.BICUBIC,
-    "cubic": InterpolationMode.BICUBIC,
-    "box": InterpolationMode.BOX,
-    "hamming": InterpolationMode.HAMMING,
-    "lanczos": InterpolationMode.LANCZOS,
+    "nearest": Image.Resampling.NEAREST,
+    "bilinear": Image.Resampling.BILINEAR,
+    "bicubic": Image.Resampling.BICUBIC,
+    "cubic": Image.Resampling.BICUBIC,
+    "box": Image.Resampling.BOX,
+    "hamming": Image.Resampling.HAMMING,
+    "lanczos": Image.Resampling.LANCZOS,
 }
 
 
-def _interpolation_modes_from_str(name: str) -> InterpolationMode:
+def _interpolation_modes_from_str(name: str) -> any:
     return INTERPOLATION_MODE_MAP[name]
 
 
@@ -85,19 +85,19 @@ def _crop_fn(data: Dict, top: int, left: int, height: int, width: int) -> Dict:
 
     return data
 
-def get_image_size(image):
+def get_image_size(image:Image.Image):
     """
     获取图片大小（高度,宽度）
     :param image: image
     :return: （高度,宽度）
     """
-    image_size = (image.shape[0], image.shape[1])
+    image_size = (image.size[0], image.size[1])
     return image_size
 
 def _resize_fn(
     data: Dict,
     size: Union[Sequence, int],
-    interpolation: Optional[InterpolationMode or str] = InterpolationMode.BILINEAR,
+    interpolation: Optional[InterpolationMode or str] = Image.Resampling.BILINEAR,
 ) -> Dict:
     """Helper function for resizing"""
     img = data["image"]
@@ -134,7 +134,7 @@ def _resize_fn(
     if "mask" in data:
         mask = data.pop("mask")
         resized_mask = T.resize(
-            img=mask, size=[size_h, size_w], interpolation = InterpolationMode.NEAREST
+            img=mask, size=[size_h, size_w], interpolation = Image.Resampling.NEAREST
         )
         data["mask"] = resized_mask
 
@@ -152,7 +152,7 @@ def _resize_fn(
         resized_instance_masks = T.resize(
             img=instance_masks,
             size=[size_h, size_w],
-            interpolation=InterpolationMode.NEAREST,
+            interpolation=Image.Resampling.NEAREST,
         )
         data["instance_mask"] = resized_instance_masks
 
@@ -312,12 +312,8 @@ class AutoAugment(BaseTransformation, autoaugment.AutoAugment):
         )
 
 
-# @register_transformations(name="rand_augment", type="image_pil")
+@register_transformations(name="rand_augment", type="image_pil")
 class RandAugment(BaseTransformation):
-    """
-    This class implements the `RandAugment data augmentation <https://arxiv.org/abs/1909.13719>`_ method.
-    """
-
     def __init__(self, opts, *args, **kwargs) -> None:
         num_ops = getattr(opts, "image_augmentation.rand_augment.num_ops", 2)
         magnitude = getattr(opts, "image_augmentation.rand_augment.magnitude", 9)
@@ -508,14 +504,14 @@ class RandomRotate(BaseTransformation):
         rand_angle = random.uniform(-self.angle, self.angle)
         img = data.pop("image")
         data["image"] = T.rotate(
-            img, angle=rand_angle, interpolation=InterpolationMode.BILINEAR, fill=0
+            img, angle=rand_angle, interpolation=Image.Resampling.BILINEAR, fill=0
         )
         if "mask" in data:
             mask = data.pop("mask")
             data["mask"] = T.rotate(
                 mask,
                 angle=rand_angle,
-                interpolation=InterpolationMode.NEAREST,
+                interpolation=Image.Resampling.NEAREST,
                 fill=self.mask_fill,
             )
         return data
@@ -1109,15 +1105,15 @@ class InstanceProcessor(BaseTransformation):
                 resized_instances.append(instance_m)
 
             if len(resized_instances) == 0:
-                resized_instances = torch.zeros(
-                    size=(1, self.instance_size[0], self.instance_size[1]),
-                    dtype=torch.long,
+                resized_instances = paddle.zeros(
+                    shape=(1, self.instance_size[0], self.instance_size[1]),
+                    dtype=paddle.int64,
                 )
                 instance_coords = np.array(
                     [[0, 0, self.instance_size[0], self.instance_size[1]]]
                 )
             else:
-                resized_instances = torch.stack(resized_instances, dim=0)
+                resized_instances = paddle.stack(resized_instances, axis=0)
 
             data["instance_mask"] = resized_instances
             data["instance_coords"] = instance_coords.astype(np.float)
@@ -1636,9 +1632,9 @@ class ToTensor(BaseTransformation):
     def __init__(self, opts, *args, **kwargs) -> None:
         super().__init__(opts=opts)
         img_dtype = getattr(opts, "image_augmentation.to_tensor.dtype", "float")
-        self.img_dtype = torch.float
+        self.img_dtype = paddle.float32
         if img_dtype in ["half", "float16"]:
-            self.img_dtype = torch.float16
+            self.img_dtype = paddle.float16
 
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
@@ -1654,33 +1650,33 @@ class ToTensor(BaseTransformation):
         # HWC --> CHW
         img = data["image"]
 
-        img = T.to_tensor(img).contiguous()
+        img = T.to_tensor(img,data_format='CHW')
 
-        data["image"] = img.to(dtype=self.img_dtype).div(255.0)
+        data["image"] = paddle.divide(img,paddle.to_tensor(255.0))
 
         if "mask" in data:
             mask = data.pop("mask")
             mask = np.array(mask)
             if len(mask.shape) > 2 and mask.shape[-1] > 1:
                 mask = np.ascontiguousarray(mask.transpose(2, 0, 1))
-            data["mask"] = torch.as_tensor(mask, dtype=torch.long)
+            data["mask"] = paddle.to_tensor(mask, dtype=paddle.int64)
 
         if "box_coordinates" in data:
             boxes = data.pop("box_coordinates")
-            data["box_coordinates"] = torch.as_tensor(boxes, dtype=torch.float)
+            data["box_coordinates"] = paddle.to_tensor(boxes, dtype=paddle.float32)
 
         if "box_labels" in data:
             box_labels = data.pop("box_labels")
-            data["box_labels"] = torch.as_tensor(box_labels)
+            data["box_labels"] = paddle.to_tensor(box_labels)
 
         if "instance_mask" in data:
             assert "instance_coords" in data
             instance_masks = data.pop("instance_mask")
-            data["instance_mask"] = instance_masks.to(dtype=torch.long)
+            data["instance_mask"] = instance_masks.to(dtype=paddle.int64)
 
             instance_coords = data.pop("instance_coords")
-            data["instance_coords"] = torch.as_tensor(
-                instance_coords, dtype=torch.float
+            data["instance_coords"] = paddle.to_tensor(
+                instance_coords, dtype=paddle.float32
             )
         return data
 

@@ -1,13 +1,12 @@
 import math
 import paddle
-
+import paddle.nn as nn
 from enum import Enum
 from paddle import Tensor
 from typing import List, Tuple, Optional
 
-from . import functional as F
-from .functional import InterpolationMode
-
+from . import functional_pil as F
+from PIL.Image import Resampling
 __all__ = ["AutoAugmentPolicy", "AutoAugment"]
 
 
@@ -120,7 +119,7 @@ def _get_magnitudes():
         "Color": (paddle.linspace(0.0, 0.9, _BINS), True),
         "Contrast": (paddle.linspace(0.0, 0.9, _BINS), True),
         "Sharpness": (paddle.linspace(0.0, 0.9, _BINS), True),
-        "Posterize": (paddle.tensor([8, 8, 7, 7, 6, 6, 5, 5, 4, 4]), False),
+        "Posterize": (paddle.to_tensor([8, 8, 7, 7, 6, 6, 5, 5, 4, 4]), False),
         "Solarize": (paddle.linspace(256.0, 0.0, _BINS), False),
         "AutoContrast": (None, None),
         "Equalize": (None, None),
@@ -128,7 +127,7 @@ def _get_magnitudes():
     }
 
 
-class AutoAugment(paddle.nn.Layer):
+class AutoAugment(nn.Layer):
     r"""AutoAugment data augmentation method based on
     `"AutoAugment: Learning Augmentation Strategies from Data" <https://arxiv.org/pdf/1805.09501.pdf>`_.
     If the image is paddle Tensor, it should be of type paddle.uint8, and it is expected
@@ -145,7 +144,7 @@ class AutoAugment(paddle.nn.Layer):
 
     def __init__(self,
                  policy: AutoAugmentPolicy=AutoAugmentPolicy.IMAGENET,
-                 interpolation: InterpolationMode=InterpolationMode.NEAREST,
+                 interpolation= Resampling.BILINEAR,
                  fill: Optional[List[float]]=None):
         super().__init__()
         self.policy = policy

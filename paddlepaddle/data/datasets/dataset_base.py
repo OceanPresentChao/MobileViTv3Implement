@@ -1,10 +1,3 @@
-#
-# For licensing see accompanying LICENSE file.
-# Copyright (C) 2022 Apple Inc. All Rights Reserved.
-#
-
-import copy
-
 import paddle
 from paddle import Tensor
 from paddle import io as data
@@ -214,7 +207,7 @@ class BaseImageDataset(data.Dataset):
         mask = np.array(mask)
         if len(mask.shape) > 2 and mask.shape[-1] > 1:
             mask = np.ascontiguousarray(mask.transpose(2, 0, 1))
-        return torch.as_tensor(mask, dtype=torch.long)
+        return paddle.to_tensor(mask, dtype=paddle.int64)
 
     @staticmethod
     def adjust_mask_value():

@@ -126,6 +126,7 @@ class ImagenetDataset(BaseImageDataset, DatasetFolder):
         :param batch_indexes_tup: Tuple of the form (Crop_size_W, Crop_size_H, Image_ID)
         :return: dictionary containing input image, label, and sample_id.
         """
+        # print("item:",batch_indexes_tup)
         crop_size_h, crop_size_w, img_index = batch_indexes_tup
         if self.is_training:
             transform_fn = self._training_transforms(size=(crop_size_h, crop_size_w))
@@ -179,7 +180,7 @@ class ImagenetDataset(BaseImageDataset, DatasetFolder):
 
 
 @register_collate_fn(name="imagenet_collate_fn")
-def imagenet_collate_fn(batch: List, opts) -> Dict:
+def imagenet_collate_fn(batch: List[Dict], opts) -> Dict:
     batch_size = len(batch)
     img_size = [batch_size, *batch[0]["image"].shape]
     img_dtype = batch[0]["image"].dtype
@@ -190,23 +191,23 @@ def imagenet_collate_fn(batch: List, opts) -> Dict:
     sample_ids = paddle.zeros(shape=[batch_size], dtype=paddle.int64)
     valid_indexes = []
     for i, batch_i in enumerate(batch):
+        # print("batch_i",batch_i)
         label_i = batch_i.pop("label")
         images[i] = batch_i.pop("image")
         labels[i] = label_i  # label is an int
-        sample_ids[i] = batch_i.pop("sample_id")  # sample id is an int
+        sample_ids[i] = int(batch_i.pop("sample_id"))  # sample id is an int
         if label_i != -1:
             valid_indexes.append(i)
 
     valid_indexes = paddle.to_tensor(valid_indexes, dtype=paddle.int64)
-    images = paddle.index_select(images, axis=0, index=valid_indexes)
-    labels = paddle.index_select(labels, axis=0, index=valid_indexes)
-    sample_ids = paddle.index_select(sample_ids, axis=0, index=valid_indexes)
-
-
+    # 由于paddle的tensor不能直接被pickle序列化，这里要转成numpy
+    images = paddle.index_select(images, axis=0, index=valid_indexes).numpy()
+    labels = paddle.index_select(labels, axis=0, index=valid_indexes).numpy()
+    sample_ids = paddle.index_select(sample_ids, axis=0, index=valid_indexes).numpy()
 
     return {
         "image": images,
         "label": labels,
         "sample_id": sample_ids,
-        "on_gpu": images.is_cuda,
+        # "on_gpu": images.is_cuda,
     }

@@ -38,15 +38,15 @@ def test_data_pipeline():
     logger_paddle_data.add("length", np.array(len(paddle_dataset)))
     logger_torch_data.add("length", np.array(len(torch_dataset)))
 
-    cnt = 0
-    for (paddle_batch, torch_batch
+    for idx, (paddle_batch, torch_batch
               ) in enumerate(zip(paddle_dataloader, torch_dataloader)):
-        if cnt >= 5:
+        if idx >= 5:
             break
-        cnt += 1
-        logger_paddle_data.add(f"dataloader_{cnt}", paddle_batch[0].numpy())
-        logger_torch_data.add(f"dataloader_{cnt}",torch_batch[0].detach().cpu().numpy())
-        
+        # print("pd_batch",paddle_batch)
+        # print("th_batch",torch_batch)
+        #paddle_batch里的image是numpy数组，torch_batch里的image是tensor
+        logger_paddle_data.add(f"dataloader_{idx}", paddle_batch["image"])
+        logger_torch_data.add(f"dataloader_{idx}",torch_batch["image"].detach().cpu().numpy())
     logger_paddle_data.save("./result/data_paddle.npy")
     logger_torch_data.save("./result/data_torch.npy")
 
@@ -63,5 +63,6 @@ def compareData():
 
 if __name__ == "__main__":
     test_data_pipeline()
+    compareData()
 
     

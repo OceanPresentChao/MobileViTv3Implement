@@ -1,6 +1,5 @@
 import numbers
-from typing import Any, List, Sequence
-
+from typing import Any, List, Sequence,Tuple
 import numpy as np
 from PIL import Image, ImageOps, ImageEnhance
 from PIL.Image import Resampling
@@ -260,17 +259,18 @@ def _parse_fill(fill, img, name="fillcolor"):
     return {name: fill}
 
 
-def affine(img, matrix, interpolation=0, fill=None):
+def affine(img:Image.Image, angle:float,translate:Tuple[int,int],scale:float,shear:Tuple[float,float], interpolation=0, fill=None):
     if not _is_pil_image(img):
         raise TypeError('img should be PIL Image. Got {}'.format(type(img)))
 
+    matrix = (scale,shear[0],translate[0],shear[1],scale,translate[1])
     output_size = img.size
     opts = _parse_fill(fill, img)
     return img.transform(output_size, Image.AFFINE, matrix, interpolation,
                          **opts)
 
 
-def rotate(img, angle, interpolation=0, expand=False, center=None, fill=None):
+def rotate(img:Image.Image, angle, interpolation=0, expand=False, center=None, fill=None):
     if not _is_pil_image(img):
         raise TypeError("img should be PIL Image. Got {}".format(type(img)))
 
