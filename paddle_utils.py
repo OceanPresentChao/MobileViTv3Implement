@@ -74,38 +74,3 @@ def gen_fake_data():
     np.save("./data/fake_data.npy", fake_data)
     np.save("./data/fake_label.npy", fake_label)
 
-
-def build_paddle_data_pipeline():
-    # dataset & data_loader
-    dataset_test = paddlevision.datasets.ImageFolder(
-        "./lite_data/val/",
-        presets_paddle.ClassificationPresetEval(
-            crop_size=224, resize_size=256))
-
-    test_sampler = paddle.io.SequenceSampler(dataset_test)
-
-    test_batch_sampler = paddle.io.BatchSampler(
-        sampler=test_sampler, batch_size=4)
-
-    data_loader_test = paddle.io.DataLoader(
-        dataset_test, batch_sampler=test_batch_sampler, num_workers=0)
-
-    return dataset_test, data_loader_test
-
-
-def build_torch_data_pipeline():
-    dataset_test = torchvision.datasets.ImageFolder(
-        "./lite_data/val/",
-        presets_torch.ClassificationPresetEval(
-            crop_size=224, resize_size=256),
-        is_valid_file=None)
-
-    test_sampler = torch.utils.data.SequentialSampler(dataset_test)
-
-    data_loader_test = torch.utils.data.DataLoader(
-        dataset_test,
-        batch_size=4,
-        sampler=test_sampler,
-        num_workers=0,
-        pin_memory=True)
-    return dataset_test, data_loader_test

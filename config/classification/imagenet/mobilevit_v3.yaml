@@ -1,21 +1,23 @@
 common:
   run_label: "run_1"
-  log_freq: 200
+  log_freq: 500
   auto_resume: true
   mixed_precision: true
-  tensorboard_logging: false
   channels_last: true
+  tensorboard_logging: false
+  grad_clip: 10.0
 dataset:
-  root_train: "/mnt/imagenet/training"
-  root_val: "/mnt/imagenet/validation"
+  root_train: "/data/lite_data/train"
+  root_val: "/data/lite_data/val"
   name: "imagenet"
   category: "classification"
-  train_batch_size0: 128
-  val_batch_size0: 100
-  eval_batch_size0: 100
-  workers: 8
-  persistent_workers: true
-  pin_memory: false
+  train_batch_size0: 80
+  val_batch_size0: 80
+  eval_batch_size0: 80
+  workers: 6
+  prefetch_factor: 2
+  persistent_workers: false
+  pin_memory: true
 image_augmentation:
   random_resized_crop:
     enable: true
@@ -24,70 +26,67 @@ image_augmentation:
     enable: true
   rand_augment:
     enable: true
-  mixup:
-    enable: true
-    alpha: 0.2
   random_erase:
     enable: true
     p: 0.25
+  mixup:
+    enable: true
+    alpha: 0.2
   cutmix:
     enable: true
     alpha: 1.0
   resize:
     enable: true
-    size: 256 # shorter size is 256
+    size: 288 # shorter size is 288
     interpolation: "bicubic"
   center_crop:
     enable: true
-    size: 224
+    size: 256
 sampler:
-  name: "variable_batch_sampler"
-  vbs:
-    crop_size_width: 224
-    crop_size_height: 224
-    max_n_scales: 5
-    min_crop_size_width: 128
-    max_crop_size_width: 320
-    min_crop_size_height: 128
-    max_crop_size_height: 320
-    check_scale: 32
+  name: "batch_sampler"
+  bs:
+    crop_size_width: 256
+    crop_size_height: 256
 loss:
   category: "classification"
   classification:
     name: "cross_entropy"
     label_smoothing: 0.1
 optim:
-  name: "sgd"
-  weight_decay: 4.e-5
+  name: "adamw"
+  weight_decay: 0.05
   no_decay_bn_filter_bias: true
-  sgd:
-    momentum: 0.9
+  adamw:
+    beta1: 0.9
+    beta2: 0.999
 scheduler:
   name: "cosine"
   is_iteration_based: false
-  max_epochs: 600
-  warmup_iterations: 7500
-  warmup_init_lr: 0.05
+  max_epochs: 300
+  warmup_iterations: 20000
+  warmup_init_lr: 1.e-6
   cosine:
-    max_lr: 0.4
-    min_lr: 2.e-4
+    max_lr: 0.002
+    min_lr: 0.0002
 model:
   classification:
-    name: "resnet"
+    name: "mobilevit_v3"
+    mitv3:
+      width_multiplier: 1.00
+      attn_norm_layer: "layer_norm_2d"
     activation:
-      name: "relu"
-    resnet:
-      depth: 50
+      name: "swish"
   normalization:
     name: "batch_norm"
     momentum: 0.1
   activation:
-    name: "relu"
-    inplace: true
+    name: "swish"
   layer:
     global_pool: "mean"
-    conv_init: "kaiming_normal"
-    linear_init: "normal"
+    conv_init:  "kaiming_normal"
+    conv_init_std_dev: 0.02
+    linear_init: "trunc_normal"
+    linear_init_std_dev: 0.02
 ema:
   enable: true
   momentum: 0.0005
