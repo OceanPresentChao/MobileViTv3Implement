@@ -2,6 +2,7 @@
 # For licensing see accompanying LICENSE file.
 # Copyright (C) 2022 Apple Inc. All Rights Reserved.
 #
+# Pytorch加载图像数据集需要两步，首先需要使用torchvision.datasets.ImageFolder()读取图像，然后再使用torch.utils.data.DataLoader()加载数据集。
 
 from torchvision.datasets import ImageFolder
 from typing import Optional, Tuple, Dict, List, Union

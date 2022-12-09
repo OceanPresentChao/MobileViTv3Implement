@@ -11,36 +11,37 @@ import random
 import torch
 import math
 import argparse
-from torchvision import transforms as T
-from torchvision.transforms import functional as F
+from paddle.vision import transforms as T
+from .functional import InterpolationMode
+from paddlepaddle.data.transforms import autoaugment
 from typing import Sequence, Dict, Any, Union, Tuple, List, Optional
 
 from . import register_transformations, BaseTransformation
 from .utils import jaccard_numpy, setup_size
 
 INTERPOLATION_MODE_MAP = {
-    "nearest": T.InterpolationMode.NEAREST,
-    "bilinear": T.InterpolationMode.BILINEAR,
-    "bicubic": T.InterpolationMode.BICUBIC,
-    "cubic": T.InterpolationMode.BICUBIC,
-    "box": T.InterpolationMode.BOX,
-    "hamming": T.InterpolationMode.HAMMING,
-    "lanczos": T.InterpolationMode.LANCZOS,
+    "nearest": InterpolationMode.NEAREST,
+    "bilinear": InterpolationMode.BILINEAR,
+    "bicubic": InterpolationMode.BICUBIC,
+    "cubic": InterpolationMode.BICUBIC,
+    "box": InterpolationMode.BOX,
+    "hamming": InterpolationMode.HAMMING,
+    "lanczos": InterpolationMode.LANCZOS,
 }
 
 
-def _interpolation_modes_from_str(name: str) -> T.InterpolationMode:
+def _interpolation_modes_from_str(name: str) -> InterpolationMode:
     return INTERPOLATION_MODE_MAP[name]
 
 
 def _crop_fn(data: Dict, top: int, left: int, height: int, width: int) -> Dict:
     """Helper function for cropping"""
     img = data["image"]
-    data["image"] = F.crop(img, top=top, left=left, height=height, width=width)
+    data["image"] = T.crop(img, top=top, left=left, height=height, width=width)
 
     if "mask" in data:
         mask = data.pop("mask")
-        data["mask"] = F.crop(mask, top=top, left=left, height=height, width=width)
+        data["mask"] = T.crop(mask, top=top, left=left, height=height, width=width)
 
     if "box_coordinates" in data:
         boxes = data.pop("box_coordinates")
@@ -69,7 +70,7 @@ def _crop_fn(data: Dict, top: int, left: int, height: int, width: int) -> Dict:
         assert "instance_coords" in data
 
         instance_masks = data.pop("instance_mask")
-        data["instance_mask"] = F.crop(
+        data["instance_mask"] = T.crop(
             instance_masks, top=top, left=left, height=height, width=width
         )
 
@@ -84,16 +85,24 @@ def _crop_fn(data: Dict, top: int, left: int, height: int, width: int) -> Dict:
 
     return data
 
+def get_image_size(image):
+    """
+    获取图片大小（高度,宽度）
+    :param image: image
+    :return: （高度,宽度）
+    """
+    image_size = (image.shape[0], image.shape[1])
+    return image_size
 
 def _resize_fn(
     data: Dict,
     size: Union[Sequence, int],
-    interpolation: Optional[T.InterpolationMode or str] = T.InterpolationMode.BILINEAR,
+    interpolation: Optional[InterpolationMode or str] = InterpolationMode.BILINEAR,
 ) -> Dict:
     """Helper function for resizing"""
     img = data["image"]
 
-    w, h = F.get_image_size(img)
+    w, h = get_image_size(img)
 
     if isinstance(size, Sequence) and len(size) == 2:
         size_h, size_w = size[0], size[1]
@@ -118,14 +127,14 @@ def _resize_fn(
     if isinstance(interpolation, str):
         interpolation = _interpolation_modes_from_str(name=interpolation)
 
-    data["image"] = F.resize(
+    data["image"] = T.resize(
         img=img, size=[size_h, size_w], interpolation=interpolation
     )
 
     if "mask" in data:
         mask = data.pop("mask")
-        resized_mask = F.resize(
-            img=mask, size=[size_h, size_w], interpolation=T.InterpolationMode.NEAREST
+        resized_mask = T.resize(
+            img=mask, size=[size_h, size_w], interpolation = InterpolationMode.NEAREST
         )
         data["mask"] = resized_mask
 
@@ -140,10 +149,10 @@ def _resize_fn(
 
         instance_masks = data.pop("instance_mask")
 
-        resized_instance_masks = F.resize(
+        resized_instance_masks = T.resize(
             img=instance_masks,
             size=[size_h, size_w],
-            interpolation=T.InterpolationMode.NEAREST,
+            interpolation=InterpolationMode.NEAREST,
         )
         data["instance_mask"] = resized_instance_masks
 
@@ -219,6 +228,7 @@ class RandomResizedCrop(BaseTransformation, T.RandomResizedCrop):
 
     def __call__(self, data: Dict) -> Dict:
         img = data["image"]
+        return {**data,"image":T.RandomResizedCrop.__call__(self,img)}
         i, j, h, w = super().get_params(img=img, scale=self.scale, ratio=self.ratio)
         data = _crop_fn(data=data, top=i, left=j, height=h, width=w)
         return _resize_fn(data=data, size=self.size, interpolation=self.interpolation)
@@ -234,7 +244,7 @@ class RandomResizedCrop(BaseTransformation, T.RandomResizedCrop):
 
 
 @register_transformations(name="auto_augment", type="image_pil")
-class AutoAugment(BaseTransformation, T.AutoAugment):
+class AutoAugment(BaseTransformation, autoaugment.AutoAugment):
     """
     This class implements the `AutoAugment data augmentation <https://arxiv.org/pdf/1805.09501.pdf>`_ method.
     """
@@ -247,7 +257,7 @@ class AutoAugment(BaseTransformation, T.AutoAugment):
             opts, "image_augmentation.auto_augment.interpolation", "bilinear"
         )
         if policy_name == "imagenet":
-            policy = T.AutoAugmentPolicy.IMAGENET
+            policy = autoaugment.AutoAugmentPolicy.IMAGENET
         else:
             raise NotImplemented
 
@@ -255,7 +265,7 @@ class AutoAugment(BaseTransformation, T.AutoAugment):
             interpolation = _interpolation_modes_from_str(name=interpolation)
 
         BaseTransformation.__init__(self, opts=opts)
-        T.AutoAugment.__init__(self, policy=policy, interpolation=interpolation)
+        autoaugment.AutoAugment.__init__(self, policy=policy, interpolation=interpolation)
 
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
@@ -302,8 +312,8 @@ class AutoAugment(BaseTransformation, T.AutoAugment):
         )
 
 
-@register_transformations(name="rand_augment", type="image_pil")
-class RandAugment(BaseTransformation, T.RandAugment):
+# @register_transformations(name="rand_augment", type="image_pil")
+class RandAugment(BaseTransformation):
     """
     This class implements the `RandAugment data augmentation <https://arxiv.org/abs/1909.13719>`_ method.
     """
@@ -426,12 +436,12 @@ class RandomHorizontalFlip(BaseTransformation):
     def __call__(self, data: Dict) -> Dict:
         if random.random() <= self.p:
             img = data["image"]
-            width, height = F.get_image_size(img)
-            data["image"] = F.hflip(img)
+            width, height = get_image_size(img)
+            data["image"] = T.hflip(img)
 
             if "mask" in data:
                 mask = data.pop("mask")
-                data["mask"] = F.hflip(mask)
+                data["mask"] = T.hflip(mask)
 
             if "box_coordinates" in data:
                 boxes = data.pop("box_coordinates")
@@ -446,7 +456,7 @@ class RandomHorizontalFlip(BaseTransformation):
                 data["instance_coords"] = instance_coords
 
                 instance_masks = data.pop("instance_mask")
-                data["instance_mask"] = F.hflip(instance_masks)
+                data["instance_mask"] = T.hflip(instance_masks)
         return data
 
     def __repr__(self) -> str:
@@ -497,15 +507,15 @@ class RandomRotate(BaseTransformation):
 
         rand_angle = random.uniform(-self.angle, self.angle)
         img = data.pop("image")
-        data["image"] = F.rotate(
-            img, angle=rand_angle, interpolation=F.InterpolationMode.BILINEAR, fill=0
+        data["image"] = T.rotate(
+            img, angle=rand_angle, interpolation=InterpolationMode.BILINEAR, fill=0
         )
         if "mask" in data:
             mask = data.pop("mask")
-            data["mask"] = F.rotate(
+            data["mask"] = T.rotate(
                 mask,
                 angle=rand_angle,
-                interpolation=F.InterpolationMode.NEAREST,
+                interpolation=InterpolationMode.NEAREST,
                 fill=self.mask_fill,
             )
         return data
@@ -661,7 +671,7 @@ class CenterCrop(BaseTransformation):
         return parser
 
     def __call__(self, data: Dict) -> Dict:
-        width, height = F.get_image_size(data["image"])
+        width, height = get_image_size(data["image"])
         i = (height - self.height) // 2
         j = (width - self.width) // 2
         return _crop_fn(data=data, top=i, left=j, height=self.height, width=self.width)
@@ -743,7 +753,7 @@ class SSDCroping(BaseTransformation):
 
             image = data["image"]
             labels = data["box_labels"]
-            width, height = F.get_image_size(image)
+            width, height = get_image_size(image)
 
             while True:
                 # randomly choose a mode
@@ -795,7 +805,7 @@ class SSDCroping(BaseTransformation):
                         continue
 
                     # cut the crop from the image
-                    image = F.crop(image, top=top, left=left, width=new_w, height=new_h)
+                    image = T.crop(image, top=top, left=left, width=new_w, height=new_h)
 
                     # take only matching gt boxes
                     current_boxes = boxes[mask, :].copy()
@@ -818,14 +828,14 @@ class SSDCroping(BaseTransformation):
 
                     if "mask" in data:
                         mask = data.pop("mask")
-                        data["mask"] = F.crop(
+                        data["mask"] = T.crop(
                             mask, top=top, left=left, width=new_w, height=new_h
                         )
 
                     if "instance_mask" in data:
                         assert "instance_coords" in data
                         instance_masks = data.pop("instance_mask")
-                        data["instance_mask"] = F.crop(
+                        data["instance_mask"] = T.crop(
                             instance_masks,
                             top=top,
                             left=left,
@@ -1034,7 +1044,7 @@ class BoxPercentCoords(BaseTransformation):
         if "box_coordinates" in data:
             boxes = data.pop("box_coordinates")
             image = data["image"]
-            width, height = F.get_image_size(image)
+            width, height = get_image_size(image)
 
             boxes = boxes.astype(np.float)
 
@@ -1083,7 +1093,7 @@ class InstanceProcessor(BaseTransformation):
                 instance_m = instance_masks[i]
                 box_coords = instance_coords[i]
 
-                instance_m = F.crop(
+                instance_m = T.crop(
                     instance_m,
                     top=box_coords[1],
                     left=box_coords[0],
@@ -1091,10 +1101,10 @@ class InstanceProcessor(BaseTransformation):
                     width=box_coords[2] - box_coords[0],
                 )
                 # need to unsqueeze and squeeze to make F.resize work
-                instance_m = F.resize(
+                instance_m = T.resize(
                     instance_m.unsqueeze(0),
                     size=self.instance_size,
-                    interpolation=T.InterpolationMode.NEAREST,
+                    interpolation=InterpolationMode.NEAREST,
                 ).squeeze(0)
                 resized_instances.append(instance_m)
 
@@ -1207,7 +1217,7 @@ class RandomResize(BaseTransformation):
         random_ratio = random.uniform(self.min_ratio, self.max_ratio)
 
         # compute the size
-        width, height = F.get_image_size(data["image"])
+        width, height = get_image_size(data["image"])
         if self.max_scale_long_edge is not None:
             min_hw = min(height, width)
             max_hw = max(height, width)
@@ -1350,8 +1360,8 @@ class RandomShortSizeResize(BaseTransformation):
         )
 
 
-@register_transformations(name="random_erasing", type="image_pil")
-class RandomErasing(BaseTransformation, T.RandomErasing):
+# @register_transformations(name="random_erasing", type="image_pil")
+class RandomErasing(BaseTransformation):
     """
     This class randomly selects a region in a tensor and erases its pixels.
     See `this paper <https://arxiv.org/abs/1708.04896>`_ for details.
@@ -1520,7 +1530,7 @@ class RandomCrop(BaseTransformation):
         return start_y, start_x, end_y - start_y, end_x - start_x
 
     def get_params_from_mask(self, data, i, j, h, w):
-        img_w, img_h = F.get_image_size(data["image"])
+        img_w, img_h = get_image_size(data["image"])
         for _ in range(self.num_repeats):
             temp_data = _crop_fn(
                 data=copy.deepcopy(data), top=i, left=j, height=h, width=w
@@ -1549,18 +1559,18 @@ class RandomCrop(BaseTransformation):
     def _resize_if_needed(self, data: Dict) -> Dict:
         img = data["image"]
 
-        w, h = F.get_image_size(img)
+        w, h = get_image_size(img)
         # resize while maintaining the aspect ratio
         new_size = min(h + max(0, self.height - h), w + max(0, self.width - w))
 
         return _resize_fn(
-            data, size=new_size, interpolation=T.InterpolationMode.BILINEAR
+            data, size=new_size, interpolation=InterpolationMode.BILINEAR
         )
 
     def _pad_if_needed(self, data: Dict) -> Dict:
         img = data.pop("image")
 
-        w, h = F.get_image_size(img)
+        w, h = get_image_size(img)
         new_h = h + max(self.height - h, 0)
         new_w = w + max(self.width - w, 0)
 
@@ -1581,7 +1591,7 @@ class RandomCrop(BaseTransformation):
         if "box_coordinates" in data:
             boxes = data.get("box_coordinates")
             # crop the relevant area
-            image_w, image_h = F.get_image_size(data["image"])
+            image_w, image_h = get_image_size(data["image"])
             box_i, box_j, box_h, box_w = self.get_params_from_box(
                 boxes, image_h, image_w
             )
@@ -1589,7 +1599,7 @@ class RandomCrop(BaseTransformation):
 
         data = self.if_needed_fn(data)
 
-        img_w, img_h = F.get_image_size(data["image"])
+        img_w, img_h = get_image_size(data["image"])
         i, j, h, w = self.get_params(
             img_h=img_h, img_w=img_w, target_h=self.height, target_w=self.width
         )
@@ -1644,9 +1654,7 @@ class ToTensor(BaseTransformation):
         # HWC --> CHW
         img = data["image"]
 
-        if F._is_pil_image(img):
-            # convert PIL image to tensor
-            img = F.pil_to_tensor(img).contiguous()
+        img = T.to_tensor(img).contiguous()
 
         data["image"] = img.to(dtype=self.img_dtype).div(255.0)
 

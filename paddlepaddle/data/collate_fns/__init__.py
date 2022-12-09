@@ -91,4 +91,4 @@ for file in os.listdir(collate_fn_dir):
         and (file.endswith(".py") or os.path.isdir(path))
     ):
         collate_fn_fname = file[: file.find(".py")] if file.endswith(".py") else file
-        module = importlib.import_module("data.collate_fns." + collate_fn_fname)
+        module = importlib.import_module("paddlepaddle.data.collate_fns." + collate_fn_fname)

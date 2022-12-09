@@ -301,6 +301,8 @@ for abs_dir_path in glob.glob("{}/*".format(dataset_dir)):
         ) and not file_or_folder_name.startswith("."):
             SUPPORTED_TASKS.append(file_or_folder_name)
 
+
+# 如果config报错说没有不支持该任务，则是import有问题
 for task in SUPPORTED_TASKS:
     task_path = os.path.join(dataset_dir, task)
     for file in os.listdir(task_path):
@@ -312,5 +314,5 @@ for task in SUPPORTED_TASKS:
         ):
             dataset_name = file[: file.find(".py")] if file.endswith(".py") else file
             module = importlib.import_module(
-                "data.datasets." + task + "." + dataset_name
+                "paddlepaddle.data.datasets." + task + "." + dataset_name
             )

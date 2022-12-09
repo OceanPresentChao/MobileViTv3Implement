@@ -3,9 +3,9 @@
 # Copyright (C) 2022 Apple Inc. All Rights Reserved.
 #
 
-from torchvision.datasets import ImageFolder
 from typing import Optional, Tuple, Dict, List, Union
-import torch
+import paddle
+from paddle.vision.datasets import DatasetFolder
 import argparse
 
 from utils import logger
@@ -17,7 +17,7 @@ from ...collate_fns import register_collate_fn
 
 
 @register_dataset(name="imagenet", task="classification")
-class ImagenetDataset(BaseImageDataset, ImageFolder):
+class ImagenetDataset(BaseImageDataset, DatasetFolder):
     """
     ImageNet Classification Dataset that uses PIL for reading and augmenting images. The dataset structure should
     follow the ImageFolder class in :class:`torchvision.datasets.imagenet`
@@ -44,8 +44,8 @@ class ImagenetDataset(BaseImageDataset, ImageFolder):
             self, opts=opts, is_training=is_training, is_evaluation=is_evaluation
         )
         root = self.root
-        ImageFolder.__init__(
-            self, root=root, transform=None, target_transform=None, is_valid_file=None
+        DatasetFolder.__init__(
+            self, root=root, loader=None, transform=None, is_valid_file=None
         )
 
         self.n_classes = len(list(self.class_to_idx.keys()))
@@ -141,8 +141,8 @@ class ImagenetDataset(BaseImageDataset, ImageFolder):
             # Sometimes images are corrupt
             # Skip such images
             logger.log("Img index {} is possibly corrupt.".format(img_index))
-            input_tensor = torch.zeros(
-                size=(3, crop_size_h, crop_size_w), dtype=self.img_dtype
+            input_tensor = paddle.zeros(
+                shape=(3, crop_size_h, crop_size_w), dtype=self.img_dtype
             )
             target = -1
             data = {"image": input_tensor}
@@ -184,10 +184,10 @@ def imagenet_collate_fn(batch: List, opts) -> Dict:
     img_size = [batch_size, *batch[0]["image"].shape]
     img_dtype = batch[0]["image"].dtype
 
-    images = torch.zeros(size=img_size, dtype=img_dtype)
+    images = paddle.zeros(shape=img_size, dtype=img_dtype)
     # fill with -1, so that we can ignore corrupted images
-    labels = torch.full(size=[batch_size], fill_value=-1, dtype=torch.long)
-    sample_ids = torch.zeros(size=[batch_size], dtype=torch.long)
+    labels = paddle.full(shape=[batch_size], fill_value=-1, dtype=paddle.int64)
+    sample_ids = paddle.zeros(shape=[batch_size], dtype=paddle.int64)
     valid_indexes = []
     for i, batch_i in enumerate(batch):
         label_i = batch_i.pop("label")
@@ -197,14 +197,12 @@ def imagenet_collate_fn(batch: List, opts) -> Dict:
         if label_i != -1:
             valid_indexes.append(i)
 
-    valid_indexes = torch.tensor(valid_indexes, dtype=torch.long)
-    images = torch.index_select(images, dim=0, index=valid_indexes)
-    labels = torch.index_select(labels, dim=0, index=valid_indexes)
-    sample_ids = torch.index_select(sample_ids, dim=0, index=valid_indexes)
+    valid_indexes = paddle.to_tensor(valid_indexes, dtype=paddle.int64)
+    images = paddle.index_select(images, axis=0, index=valid_indexes)
+    labels = paddle.index_select(labels, axis=0, index=valid_indexes)
+    sample_ids = paddle.index_select(sample_ids, axis=0, index=valid_indexes)
 
-    channels_last = getattr(opts, "common.channels_last", False)
-    if channels_last:
-        images = images.to(memory_format=torch.channels_last)
+
 
     return {
         "image": images,

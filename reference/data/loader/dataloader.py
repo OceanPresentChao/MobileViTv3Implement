@@ -22,7 +22,7 @@ class CVNetsDataLoader(DataLoader):
         num_workers: Optional[int] = 1,
         pin_memory: Optional[bool] = False,
         persistent_workers: Optional[bool] = False,
-        collate_fn: Optional = None,
+        collate_fn: Optional[callable] = None,
         prefetch_factor: Optional[int] = 2,
         *args,
         **kwargs

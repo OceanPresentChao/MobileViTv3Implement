@@ -15,7 +15,7 @@ import numpy as np
 from torchsummary import summary as torch_summary
 
 sys.argv[1:] = ['--common.config-file',
-                './paddlepaddle/config/classification/imagenet/config.yaml']  # simulate commandline
+                './config/classification/imagenet/config.yaml']  # simulate commandline
 
 def test_forword():
     device = 'cpu'

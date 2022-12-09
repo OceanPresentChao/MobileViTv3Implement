@@ -5,9 +5,9 @@
 
 import copy
 
-import torch
-from torch import Tensor
-from torch.utils import data
+import paddle
+from paddle import Tensor
+from paddle import io as data
 import cv2
 from PIL import Image
 from typing import Optional, Union, Dict
@@ -15,17 +15,11 @@ import argparse
 import psutil
 import time
 import numpy as np
-from torchvision.io import (
-    read_image,
-    read_file,
-    decode_jpeg,
-    ImageReadMode,
-    decode_image,
-)
+
 import io
 
-from utils import logger
-from utils.ddp_utils import is_start_rank_node, is_master
+from paddlepaddle.utils import logger
+from paddlepaddle.utils.ddp_utils import is_start_rank_node, is_master
 
 
 class BaseImageDataset(data.Dataset):
@@ -56,11 +50,10 @@ class BaseImageDataset(data.Dataset):
         self.opts = opts
 
         image_device_cuda = getattr(self.opts, "dataset.decode_data_on_gpu", False)
-        device = getattr(self.opts, "dev.device", torch.device("cpu"))
+        device = getattr(self.opts, "dev.device",'cpu')
         use_cuda = False
         if image_device_cuda and (
             (isinstance(device, str) and device.find("cuda") > -1)
-            or (isinstance(device, torch.device) and device.type.find("cuda") > -1)
         ):  # cuda could be cuda:0
             use_cuda = True
 
@@ -70,7 +63,7 @@ class BaseImageDataset(data.Dataset):
                     "For loading images on GPU, --dataset.pin-memory should be disabled."
                 )
 
-        self.device = device if use_cuda else torch.device("cpu")
+        self.device = device if use_cuda else 'cpu'
 
         self.cached_data = (
             dict()
@@ -189,41 +182,6 @@ class BaseImageDataset(data.Dataset):
             img = convert_to_rgb(path)
         return img
 
-    def read_pil_image_torchvision(self, path: str):
-        if self.cached_data is not None:
-            # code for caching data on RAM
-            used_memory = float(psutil.virtual_memory().percent)
-
-            if path in self.cached_data:
-                byte_img = self.cached_data[path]
-            elif (path not in self.cached_data) and (used_memory <= self.cache_limit):
-                # image is not present in cache and RAM usage is less than the threshold, add to cache
-                byte_img = read_file(path)
-                self.cached_data[path] = byte_img
-            else:
-                byte_img = read_file(path)
-        else:
-            byte_img = read_file(path)
-        img = decode_image(byte_img, mode=ImageReadMode.RGB)
-        return img
-
-    def read_image_tensor(self, path: str):
-        if self.cached_data is not None:
-            # code for caching data on RAM
-            used_memory = float(psutil.virtual_memory().percent)
-
-            if path in self.cached_data:
-                byte_img = self.cached_data[path]
-            elif (path not in self.cached_data) and (used_memory <= self.cache_limit):
-                # image is not present in cache and RAM usage is less than the threshold, add to cache
-                byte_img = read_file(path)
-                self.cached_data[path] = byte_img
-            else:
-                byte_img = read_file(path)
-        else:
-            byte_img = read_file(path)
-        img = decode_jpeg(byte_img, device=self.device, mode=ImageReadMode.RGB)
-        return img
 
     @staticmethod
     def read_mask_pil(path: str):

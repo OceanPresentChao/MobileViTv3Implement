@@ -1,23 +1,19 @@
-#
-# For licensing see accompanying LICENSE file.
-# Copyright (C) 2022 Apple Inc. All Rights Reserved.
-#
-
 import paddle
 from functools import partial
 
-from utils import logger
-from utils.ddp_utils import is_master
-from utils.tensor_utils import image_size_from_opts
+from paddlepaddle.utils import logger
+from paddlepaddle.utils.ddp_utils import is_master
+from paddlepaddle.utils.tensor_utils import image_size_from_opts
 
-from .datasets import train_val_datasets, evaluation_datasets
+# from .datasets import train_val_datasets, evaluation_datasets
 from .sampler import build_sampler
 from .collate_fns import build_collate_fn, build_eval_collate_fn
 from .loader.dataloader import CVNetsDataLoader
 
 
-def create_eval_loader(opts):
-    eval_dataset = evaluation_datasets(opts)
+def create_eval_loader(opts,eval_dataset):
+    if eval_dataset is None:
+        raise ValueError("eval_dataset is None")
     n_eval_samples = len(eval_dataset)
     is_master_node = is_master(opts)
 
@@ -72,8 +68,9 @@ def create_eval_loader(opts):
     return eval_loader
 
 
-def create_train_val_loader(opts):
-    train_dataset, valid_dataset = train_val_datasets(opts)
+def create_train_val_loader(opts,train_dataset, valid_dataset):
+    if(train_dataset is None or valid_dataset is None):
+        raise ValueError("both train_dataset and valid_dataset can't be None ")
 
     n_train_samples = len(train_dataset)
     is_master_node = is_master(opts)

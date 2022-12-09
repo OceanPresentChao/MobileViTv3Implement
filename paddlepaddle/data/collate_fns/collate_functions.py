@@ -1,9 +1,4 @@
-#
-# For licensing see accompanying LICENSE file.
-# Copyright (C) 2022 Apple Inc. All Rights Reserved.
-#
-
-import torch
+import paddle
 from typing import List, Dict
 
 from utils import logger
@@ -29,11 +24,11 @@ def default_collate_fn(batch: List[Dict], opts):
 
         if isinstance(batch_elements[0], (int, float)):
             # list of ints or floats
-            batch_elements = torch.as_tensor(batch_elements)
+            batch_elements = paddle.to_tensor(batch_elements)
         else:
             # stack tensors (including 0-dimensional)
             try:
-                batch_elements = torch.stack(batch_elements, dim=0).contiguous()
+                batch_elements = paddle.stack(batch_elements, axis=0).contiguous()
             except Exception as e:
                 logger.error("Unable to stack the tensors. Error: {}".format(e))
 

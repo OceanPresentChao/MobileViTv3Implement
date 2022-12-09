@@ -311,5 +311,5 @@ for task in SUPPORTED_TASKS:
         ):
             dataset_name = file[: file.find(".py")] if file.endswith(".py") else file
             module = importlib.import_module(
-                "data.datasets." + task + "." + dataset_name
+                "reference.data.datasets." + task + "." + dataset_name
             )

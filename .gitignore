@@ -7,6 +7,7 @@ results
 *.png
 *.jpg
 .idea
+lite_data/
 
 results*
 vision_datasets/
