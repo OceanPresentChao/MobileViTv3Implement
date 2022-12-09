@@ -17,33 +17,6 @@ from torchsummary import summary as torch_summary
 sys.argv[1:] = ['--common.config-file',
                 './paddlepaddle/config/classification/imagenet/config.yaml']  # simulate commandline
 
-def printParameters(model,filename):
-    with open(filename, "w") as f:
-            for name, param in model.named_parameters():
-                f.write(str(name)+ '  '+ str(param.shape)+'\n')
-    f.close()
-
-def compareParam(torch, paddle):
-    torch_list = [{'name':name, 'value': param} for name, param in torch.named_parameters()]
-    paddle_list = [{'name':name, 'value': param} for name, param in paddle.named_parameters()]
-    with open("./result/param_diff.txt", "w") as f:
-        ti = 0
-        pi = 0
-        while ti < len(torch_list) and pi < len(paddle_list):
-            if "_mean" in paddle_list[pi]['name'] or "_variance" in paddle_list[pi]['name']:
-                pi += 1
-                continue
-            if torch_list[ti]['name'] == paddle_list[pi]['name']:
-                name = torch_list[ti]['name']
-                torch_value = torch_list[ti]['value'].detach().cpu().numpy()
-                paddle_value = paddle_list[pi]['value'].detach().cpu().numpy()
-                res = np.subtract(paddle_value,torch_value,dtype=np.float64)
-                f.write(str(name) + ': '+str(res) + '\n')
-            ti += 1
-            pi += 1
-
-
-
 def test_forword():
     device = 'cpu'
     torch_device = torch.device("cuda:0" if device == "gpu" else "cpu")
@@ -97,8 +70,6 @@ def loadModels():
     paddle_model.set_state_dict(paddle_state_dict)
     paddle_model.eval()
 
-    
-
     load_torch_params(paddle_model, torch_state_dict)
 
     return paddle_model,torch_model
@@ -135,6 +106,31 @@ def compareOutput():
     diff_helper.compare_info(torch_info, paddle_info)
     diff_helper.report(
         path="./result/log/forward_diff.log", diff_threshold=1e-5)
+
+def printParameters(model,filename):
+    with open(filename, "w") as f:
+            for name, param in model.named_parameters():
+                f.write(str(name)+ '  '+ str(param.shape)+'\n')
+    f.close()
+
+def compareParam(torch, paddle):
+    torch_list = [{'name':name, 'value': param} for name, param in torch.named_parameters()]
+    paddle_list = [{'name':name, 'value': param} for name, param in paddle.named_parameters()]
+    with open("./result/param_diff.txt", "w") as f:
+        ti = 0
+        pi = 0
+        while ti < len(torch_list) and pi < len(paddle_list):
+            if "_mean" in paddle_list[pi]['name'] or "_variance" in paddle_list[pi]['name']:
+                pi += 1
+                continue
+            if torch_list[ti]['name'] == paddle_list[pi]['name']:
+                name = torch_list[ti]['name']
+                torch_value = torch_list[ti]['value'].detach().cpu().numpy()
+                paddle_value = paddle_list[pi]['value'].detach().cpu().numpy()
+                res = np.subtract(paddle_value,torch_value,dtype=np.float64)
+                f.write(str(name) + ': '+str(res) + '\n')
+            ti += 1
+            pi += 1
 
 if __name__ == "__main__":
     test_forword()
