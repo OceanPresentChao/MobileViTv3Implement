@@ -59,6 +59,7 @@ def compareData():
 
     # compare result and produce log
     diff_helper.compare_info(torch_info, paddle_info)
+    # 因为数据集在做transform有随机的操作。需要在配置文件中修改scale和radio，一般情况下pass不了很正常
     diff_helper.report(path="./result/log/data_diff.log")
 
 if __name__ == "__main__":

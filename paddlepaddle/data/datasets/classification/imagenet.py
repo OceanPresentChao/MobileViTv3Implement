@@ -4,8 +4,9 @@
 #
 
 from typing import Optional, Tuple, Dict, List, Union
+# from paddle.vision.datasets import DatasetFolder
+from .imagefolder import ImageFolder
 import paddle
-from paddle.vision.datasets import DatasetFolder
 import argparse
 
 from utils import logger
@@ -17,7 +18,7 @@ from ...collate_fns import register_collate_fn
 
 
 @register_dataset(name="imagenet", task="classification")
-class ImagenetDataset(BaseImageDataset, DatasetFolder):
+class ImagenetDataset(BaseImageDataset, ImageFolder):
     """
     ImageNet Classification Dataset that uses PIL for reading and augmenting images. The dataset structure should
     follow the ImageFolder class in :class:`torchvision.datasets.imagenet`
@@ -44,8 +45,8 @@ class ImagenetDataset(BaseImageDataset, DatasetFolder):
             self, opts=opts, is_training=is_training, is_evaluation=is_evaluation
         )
         root = self.root
-        DatasetFolder.__init__(
-            self, root=root, loader=None, transform=None, is_valid_file=None
+        ImageFolder.__init__(
+            self, root=root, transform=None, target_transform=None, is_valid_file=None
         )
 
         self.n_classes = len(list(self.class_to_idx.keys()))
@@ -92,15 +93,15 @@ class ImagenetDataset(BaseImageDataset, DatasetFolder):
             logger.error(
                 "AutoAugment and RandAugment are mutually exclusive. Use either of them, but not both"
             )
-        elif auto_augment:
-            aug_list.append(T.AutoAugment(opts=self.opts))
-        elif rand_augment:
-            aug_list.append(T.RandAugment(opts=self.opts))
+        # elif auto_augment:
+        #     aug_list.append(T.AutoAugment(opts=self.opts))
+        # elif rand_augment:
+        #     aug_list.append(T.RandAugment(opts=self.opts))
 
         aug_list.append(T.ToTensor(opts=self.opts))
 
-        if getattr(self.opts, "image_augmentation.random_erase.enable", False):
-            aug_list.append(T.RandomErasing(opts=self.opts))
+        # if getattr(self.opts, "image_augmentation.random_erase.enable", False):
+        #     aug_list.append(T.RandomErasing(opts=self.opts))
 
         return T.Compose(opts=self.opts, img_transforms=aug_list)
 
@@ -114,6 +115,7 @@ class ImagenetDataset(BaseImageDataset, DatasetFolder):
             T.CenterCrop(opts=self.opts),
             T.ToTensor(opts=self.opts),
         ]
+        print("paddle val aug_list:",aug_list)
 
         return T.Compose(opts=self.opts, img_transforms=aug_list)
 
@@ -148,8 +150,10 @@ class ImagenetDataset(BaseImageDataset, DatasetFolder):
             target = -1
             data = {"image": input_tensor}
         else:
+            # input_image为pil图像
             data = {"image": input_img}
             data = transform_fn(data)
+            print("paddle data:",data)
 
         data["label"] = target
         data["sample_id"] = img_index

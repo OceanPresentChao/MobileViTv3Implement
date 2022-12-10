@@ -20,13 +20,13 @@ from . import register_transformations, BaseTransformation
 from .utils import jaccard_numpy, setup_size
 
 INTERPOLATION_MODE_MAP = {
-    "nearest": Image.Resampling.NEAREST,
-    "bilinear": Image.Resampling.BILINEAR,
-    "bicubic": Image.Resampling.BICUBIC,
-    "cubic": Image.Resampling.BICUBIC,
-    "box": Image.Resampling.BOX,
-    "hamming": Image.Resampling.HAMMING,
-    "lanczos": Image.Resampling.LANCZOS,
+    "nearest": "nearest",
+    "bilinear":"bilinear",
+    "bicubic": "bicubic",
+    "cubic": "cubic",
+    "box": "box",
+    "hamming": "hamming",
+    "lanczos": "lanczos",
 }
 
 
@@ -87,17 +87,17 @@ def _crop_fn(data: Dict, top: int, left: int, height: int, width: int) -> Dict:
 
 def get_image_size(image:Image.Image):
     """
-    获取图片大小（高度,宽度）
+    获取图片大小（宽度,高度）
     :param image: image
-    :return: （高度,宽度）
+    :return: （宽度,高度）
     """
-    image_size = (image.size[0], image.size[1])
+    image_size = (image.size[1], image.size[0])
     return image_size
 
 def _resize_fn(
     data: Dict,
     size: Union[Sequence, int],
-    interpolation: Optional[InterpolationMode or str] = Image.Resampling.BILINEAR,
+    interpolation: Optional[InterpolationMode or str] = InterpolationMode.BILINEAR,
 ) -> Dict:
     """Helper function for resizing"""
     img = data["image"]
@@ -134,7 +134,7 @@ def _resize_fn(
     if "mask" in data:
         mask = data.pop("mask")
         resized_mask = T.resize(
-            img=mask, size=[size_h, size_w], interpolation = Image.Resampling.NEAREST
+            img=mask, size=[size_h, size_w], interpolation = InterpolationMode.NEAREST
         )
         data["mask"] = resized_mask
 
@@ -152,7 +152,7 @@ def _resize_fn(
         resized_instance_masks = T.resize(
             img=instance_masks,
             size=[size_h, size_w],
-            interpolation=Image.Resampling.NEAREST,
+            interpolation=InterpolationMode.NEAREST,
         )
         data["instance_mask"] = resized_instance_masks
 
@@ -183,12 +183,12 @@ class RandomResizedCrop(BaseTransformation, T.RandomResizedCrop):
             "image_augmentation.random_resized_crop.aspect_ratio",
             (3.0 / 4.0, 4.0 / 3.0),
         )
-
         BaseTransformation.__init__(self, opts=opts)
 
         T.RandomResizedCrop.__init__(
             self, size=size, scale=scale, ratio=ratio, interpolation=interpolation
         )
+
 
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
@@ -228,8 +228,7 @@ class RandomResizedCrop(BaseTransformation, T.RandomResizedCrop):
 
     def __call__(self, data: Dict) -> Dict:
         img = data["image"]
-        return {**data,"image":T.RandomResizedCrop.__call__(self,img)}
-        i, j, h, w = super().get_params(img=img, scale=self.scale, ratio=self.ratio)
+        i, j, h, w = super()._get_param(img)
         data = _crop_fn(data=data, top=i, left=j, height=h, width=w)
         return _resize_fn(data=data, size=self.size, interpolation=self.interpolation)
 
@@ -504,14 +503,14 @@ class RandomRotate(BaseTransformation):
         rand_angle = random.uniform(-self.angle, self.angle)
         img = data.pop("image")
         data["image"] = T.rotate(
-            img, angle=rand_angle, interpolation=Image.Resampling.BILINEAR, fill=0
+            img, angle=rand_angle, interpolation=InterpolationMode.BILINEAR, fill=0
         )
         if "mask" in data:
             mask = data.pop("mask")
             data["mask"] = T.rotate(
                 mask,
                 angle=rand_angle,
-                interpolation=Image.Resampling.NEAREST,
+                interpolation=InterpolationMode.NEAREST,
                 fill=self.mask_fill,
             )
         return data
@@ -1631,7 +1630,7 @@ class ToTensor(BaseTransformation):
 
     def __init__(self, opts, *args, **kwargs) -> None:
         super().__init__(opts=opts)
-        img_dtype = getattr(opts, "image_augmentation.to_tensor.dtype", "float")
+        img_dtype = getattr(opts, "image_augmentation.to_tensor.dtype", "float32")
         self.img_dtype = paddle.float32
         if img_dtype in ["half", "float16"]:
             self.img_dtype = paddle.float16
@@ -1650,9 +1649,11 @@ class ToTensor(BaseTransformation):
         # HWC --> CHW
         img = data["image"]
 
+        # 如果输入的 PIL.Image 的 mode 是 (L, LA, P, I, F, RGB, YCbCr, RGBA, CMYK, 1) 其中一种，或者输入的 numpy.ndarray 数据类型是 'uint8'，那个会将输入数据从（0-255）的范围缩放到 （0-1）的范围。
+        # 因此此处不需要再除255
         img = T.to_tensor(img,data_format='CHW')
-
-        data["image"] = paddle.divide(img,paddle.to_tensor(255.0))
+        # data["image"] = paddle.divide(img,paddle.to_tensor(255.0))
+        data["image"]=img
 
         if "mask" in data:
             mask = data.pop("mask")

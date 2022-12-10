@@ -1101,7 +1101,7 @@ class InstanceProcessor(BaseTransformation):
             if len(resized_instances) == 0:
                 resized_instances = torch.zeros(
                     size=(1, self.instance_size[0], self.instance_size[1]),
-                    dtype=torch.long,
+                    dtype=torch.int64,
                 )
                 instance_coords = np.array(
                     [[0, 0, self.instance_size[0], self.instance_size[1]]]
@@ -1625,8 +1625,8 @@ class ToTensor(BaseTransformation):
 
     def __init__(self, opts, *args, **kwargs) -> None:
         super().__init__(opts=opts)
-        img_dtype = getattr(opts, "image_augmentation.to_tensor.dtype", "float")
-        self.img_dtype = torch.float
+        img_dtype = getattr(opts, "image_augmentation.to_tensor.dtype", "float32")
+        self.img_dtype = torch.float32
         if img_dtype in ["half", "float16"]:
             self.img_dtype = torch.float16
 
@@ -1655,11 +1655,11 @@ class ToTensor(BaseTransformation):
             mask = np.array(mask)
             if len(mask.shape) > 2 and mask.shape[-1] > 1:
                 mask = np.ascontiguousarray(mask.transpose(2, 0, 1))
-            data["mask"] = torch.as_tensor(mask, dtype=torch.long)
+            data["mask"] = torch.as_tensor(mask, dtype=torch.int64)
 
         if "box_coordinates" in data:
             boxes = data.pop("box_coordinates")
-            data["box_coordinates"] = torch.as_tensor(boxes, dtype=torch.float)
+            data["box_coordinates"] = torch.as_tensor(boxes, dtype=torch.float32)
 
         if "box_labels" in data:
             box_labels = data.pop("box_labels")
@@ -1668,11 +1668,11 @@ class ToTensor(BaseTransformation):
         if "instance_mask" in data:
             assert "instance_coords" in data
             instance_masks = data.pop("instance_mask")
-            data["instance_mask"] = instance_masks.to(dtype=torch.long)
+            data["instance_mask"] = instance_masks.to(dtype=torch.int64)
 
             instance_coords = data.pop("instance_coords")
             data["instance_coords"] = torch.as_tensor(
-                instance_coords, dtype=torch.float
+                instance_coords, dtype=torch.float32
             )
         return data
 

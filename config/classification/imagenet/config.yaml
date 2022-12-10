@@ -14,7 +14,7 @@ dataset:
   train_batch_size0: 85
   val_batch_size0: 85
   eval_batch_size0: 1
-  workers: 1
+  workers: 0
   prefetch_factor: 2
   persistent_workers: false
   pin_memory: true

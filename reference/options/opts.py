@@ -17,7 +17,6 @@ from optim.scheduler import arguments_scheduler
 from common import SUPPORTED_MODALITIES
 from data.transforms import arguments_augmentation
 from metrics import arguments_stats
-from data.video_reader import arguments_video_reader
 from cvnets.matcher_det import arguments_box_matcher
 from utils import logger
 
@@ -260,8 +259,6 @@ def get_training_arguments(parse_args: Optional[bool] = True):
     # arguments related to box matcher
     parser = arguments_box_matcher(parser=parser)
 
-    # Video reader related arguments
-    parser = arguments_video_reader(parser=parser)
 
     # collate fn  related arguments
     parser = arguments_collate_fn(parser=parser)

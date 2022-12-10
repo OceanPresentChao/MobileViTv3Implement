@@ -4,8 +4,8 @@
 #
 # Pytorch加载图像数据集需要两步，首先需要使用torchvision.datasets.ImageFolder()读取图像，然后再使用torch.utils.data.DataLoader()加载数据集。
 
-from torchvision.datasets import ImageFolder
 from typing import Optional, Tuple, Dict, List, Union
+from torchvision.datasets import ImageFolder
 import torch
 import argparse
 
@@ -93,15 +93,15 @@ class ImagenetDataset(BaseImageDataset, ImageFolder):
             logger.error(
                 "AutoAugment and RandAugment are mutually exclusive. Use either of them, but not both"
             )
-        elif auto_augment:
-            aug_list.append(T.AutoAugment(opts=self.opts))
-        elif rand_augment:
-            aug_list.append(T.RandAugment(opts=self.opts))
+        # elif auto_augment:
+        #     aug_list.append(T.AutoAugment(opts=self.opts))
+        # elif rand_augment:
+        #     aug_list.append(T.RandAugment(opts=self.opts))
 
         aug_list.append(T.ToTensor(opts=self.opts))
 
-        if getattr(self.opts, "image_augmentation.random_erase.enable", False):
-            aug_list.append(T.RandomErasing(opts=self.opts))
+        # if getattr(self.opts, "image_augmentation.random_erase.enable", False):
+        #     aug_list.append(T.RandomErasing(opts=self.opts))
 
         return T.Compose(opts=self.opts, img_transforms=aug_list)
 
@@ -115,6 +115,7 @@ class ImagenetDataset(BaseImageDataset, ImageFolder):
             T.CenterCrop(opts=self.opts),
             T.ToTensor(opts=self.opts),
         ]
+        print("torch val aug_list:",aug_list)
 
         return T.Compose(opts=self.opts, img_transforms=aug_list)
 
@@ -150,6 +151,8 @@ class ImagenetDataset(BaseImageDataset, ImageFolder):
         else:
             data = {"image": input_img}
             data = transform_fn(data)
+            print("torch data:",data)
+
 
         data["label"] = target
         data["sample_id"] = img_index
