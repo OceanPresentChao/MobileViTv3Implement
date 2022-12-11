@@ -151,7 +151,7 @@ class ImagenetDataset(BaseImageDataset, ImageFolder):
         else:
             data = {"image": input_img}
             data = transform_fn(data)
-            print("torch data:",data)
+            # print("torch data:",data)
 
 
         data["label"] = target

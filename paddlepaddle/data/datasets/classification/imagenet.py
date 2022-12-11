@@ -153,7 +153,7 @@ class ImagenetDataset(BaseImageDataset, ImageFolder):
             # input_image为pil图像
             data = {"image": input_img}
             data = transform_fn(data)
-            print("paddle data:",data)
+            # print("paddle data:",data)
 
         data["label"] = target
         data["sample_id"] = img_index

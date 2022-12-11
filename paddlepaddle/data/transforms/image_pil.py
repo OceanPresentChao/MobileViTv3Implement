@@ -178,10 +178,12 @@ class RandomResizedCrop(BaseTransformation, T.RandomResizedCrop):
         scale = getattr(
             opts, "image_augmentation.random_resized_crop.scale", (0.08, 1.0)
         )
+        # 注意这里为了对齐做了修改！
         ratio = getattr(
             opts,
             "image_augmentation.random_resized_crop.aspect_ratio",
-            (3.0 / 4.0, 4.0 / 3.0),
+            # (3.0 / 4.0, 4.0 / 3.0),
+            (4.0 / 3.0, 4.0 / 3.0),
         )
         BaseTransformation.__init__(self, opts=opts)
 

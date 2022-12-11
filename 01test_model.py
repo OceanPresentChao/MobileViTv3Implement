@@ -1,26 +1,23 @@
 
 from reprod_log import ReprodLogger
 from reprod_log import ReprodDiffHelper
-from paddlepaddle.options.opts import get_training_arguments 
 
-from paddlepaddle.loss_fn import build_loss_fn as build_loss_pad
-from paddlepaddle.cvnets.models.classification import build_classification_model as build_model_pad
-
-from reference.loss_fn import build_loss_fn as build_loss_ref
-from reference.cvnets.models.classification import build_classification_model as build_model_ref
 import sys
 import paddle
 import torch
 import numpy as np
+from paddlepaddle.options.opts import get_training_arguments 
 from torchsummary import summary as torch_summary
+from utilities import loadModels
 
 sys.argv[1:] = ['--common.config-file',
                 './config/classification/imagenet/config.yaml']  # simulate commandline
 
 def test_forword():
+    opts = get_training_arguments()
     device = 'cpu'
     torch_device = torch.device("cuda:0" if device == "gpu" else "cpu")
-    paddle_model,torch_model = loadModels()
+    paddle_model,torch_model = loadModels(opts)
 
 
 
@@ -50,29 +47,6 @@ def test_forword():
     reprod_logger.save("./result/forward_torch.npy")
 
 
-def loadModels():
-    device = 'cpu'
-    torch_device = torch.device("cuda:0" if device == "gpu" else "cpu")
-    paddle.set_device(device)
-
-    opts = get_training_arguments()
-
-    # load torch model
-    torch_model = build_model_ref(opts)
-    torch_state_dict = torch.load("./data/torch.pt",map_location=torch_device)
-    torch_model.load_state_dict(torch_state_dict)
-    torch_model.to(torch_device)
-    torch_model.eval()
-
-    # load paddle model
-    paddle_model = build_model_pad(opts)
-    paddle_state_dict = paddle.load("./data/paddle.pdparams")
-    paddle_model.set_state_dict(paddle_state_dict)
-    paddle_model.eval()
-
-    load_torch_params(paddle_model, torch_state_dict)
-
-    return paddle_model,torch_model
 
 
 def load_torch_params(paddle_model, torch_patams):

@@ -20,7 +20,7 @@ def metric_monitor(
     loss: Tensor or float,
     metric_names: list,
     use_distributed: Optional[bool] = False,
-    grad_norm: Optional = None,
+    grad_norm: Optional[int] = None,
     is_evaluation: Optional[bool] = False,
     *args,
     **kwargs

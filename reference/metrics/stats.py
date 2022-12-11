@@ -23,7 +23,7 @@ class Statistics(object):
             logger.error("Metric names list cannot be empty")
 
         # key is the metric name and value is the value
-        metric_dict: Dict[str, Union[Any]] = {}
+        metric_dict: Dict[str, Any] = {}
         metric_counters = {}
         for m_name in metric_names:
             # Don't use coco_map key here as it is handled separately

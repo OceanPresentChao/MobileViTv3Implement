@@ -1,10 +1,6 @@
-#
-# For licensing see accompanying LICENSE file.
-# Copyright (C) 2022 Apple Inc. All Rights Reserved.
-#
-
-from torch import Tensor
+from paddle import Tensor
 from typing import Optional
+import paddle
 
 from . import register_stats_fn
 
@@ -19,11 +15,11 @@ def top_k_accuracy(
 
     _, pred = output.topk(maximum_k, 1, True, True)
     pred = pred.t()
-    correct = pred.eq(target.reshape(1, -1).expand_as(pred))
+    correct = pred.equal(target.reshape([1, -1]).expand_as(pred))
 
     results = []
     for k in top_k:
-        correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True)
-        acc_k = correct_k.mul_(100.0 / batch_size)
+        correct_k = correct[:k].reshape([-1]).astype(paddle.float32).sum(0, keepdim=True)
+        acc_k = correct_k * (100.0 / batch_size)
         results.append(acc_k)
     return results

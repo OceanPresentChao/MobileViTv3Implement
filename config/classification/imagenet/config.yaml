@@ -22,6 +22,7 @@ image_augmentation:
   random_resized_crop:
     enable: true
     interpolation: "bicubic"
+    scale: [1.0,1.0]
   random_horizontal_flip:
     enable: true
   auto_augment:

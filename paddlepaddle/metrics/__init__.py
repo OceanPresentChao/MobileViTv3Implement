@@ -65,7 +65,7 @@ for file in os.listdir(metrics_dir):
         and (file.endswith(".py") or os.path.isdir(path))
     ):
         model_name = file[: file.find(".py")] if file.endswith(".py") else file
-        module = importlib.import_module("metrics." + model_name)
+        module = importlib.import_module("paddlepaddle.metrics." + model_name)
 
 
 from metrics.stats import Statistics

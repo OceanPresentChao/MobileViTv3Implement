@@ -1,29 +1,12 @@
-import os
 import sys
-import torch
-import paddle
 import numpy as np
-from PIL import Image
 from reprod_log import ReprodLogger, ReprodDiffHelper
 from paddlepaddle.options.opts import get_training_arguments 
-from reference.data.datasets import train_val_datasets as create_datasets_ref
-from reference.data.data_loaders import create_train_val_loader as create_loader_ref
-from paddlepaddle.data.datasets import train_val_datasets as create_datasets_pad
-from paddlepaddle.data.data_loaders import create_train_val_loader as create_loader_pad
+from utilities import build_paddle_data_pipeline, build_torch_data_pipeline
 
 sys.argv[1:] = ['--common.config-file',
                 './config/classification/imagenet/config.yaml']  # simulate commandline
 
-def build_paddle_data_pipeline(opts):
-    train_dataset, valid_dataset = create_datasets_pad(opts)
-    train_loader, val_loader, train_sampler = create_loader_pad(opts, train_dataset, valid_dataset)
-    return train_dataset, train_loader
-
-
-def build_torch_data_pipeline(opts):
-    train_dataset, valid_dataset = create_datasets_ref(opts)
-    train_loader, val_loader, train_sampler = create_loader_ref(opts, train_dataset, valid_dataset)
-    return train_dataset, train_loader
 
 def test_data_pipeline():
     opts = get_training_arguments()
