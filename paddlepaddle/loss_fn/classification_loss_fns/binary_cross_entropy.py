@@ -11,7 +11,7 @@ from . import register_classification_loss_fn
 from .. import BaseCriteria
 
 
-@register_classification_loss_fn(name="binary_cross_entropy")
+# @register_classification_loss_fn(name="binary_cross_entropy")
 class ClsBinaryCrossEntropy(BaseCriteria):
     """Binary CE for classification tasks"""
 

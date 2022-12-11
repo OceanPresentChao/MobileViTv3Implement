@@ -16,7 +16,7 @@ class ClsCrossEntropy(BaseCriteria):
     """Cross entropy for classification tasks"""
 
     def __init__(self, opts):
-        ignore_idx = getattr(opts, "loss.ignore_idx", -1)
+        ignore_idx = getattr(opts, "loss.ignore_idx", -100)
         use_class_wts = getattr(
             opts, "loss.classification.cross_entropy.class_weights", False
         )

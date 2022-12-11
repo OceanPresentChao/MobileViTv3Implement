@@ -84,4 +84,4 @@ for file in os.listdir(loss_fn_dir):
         and (file.endswith(".py") or os.path.isdir(path))
     ):
         loss_fn_name = file[: file.find(".py")] if file.endswith(".py") else file
-        module = importlib.import_module("loss_fn." + loss_fn_name)
+        module = importlib.import_module("paddlepaddle.loss_fn." + loss_fn_name)

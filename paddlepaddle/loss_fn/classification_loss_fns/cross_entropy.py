@@ -3,9 +3,10 @@
 # Copyright (C) 2022 Apple Inc. All Rights Reserved.
 #
 
-from torch.nn import functional as F
-from torch import Tensor
+from paddle.nn import functional as F
+from paddle import Tensor
 import argparse
+import paddle
 
 from . import register_classification_loss_fn
 from .. import BaseCriteria
@@ -16,7 +17,7 @@ class ClsCrossEntropy(BaseCriteria):
     """Cross entropy for classification tasks"""
 
     def __init__(self, opts):
-        ignore_idx = getattr(opts, "loss.ignore_idx", -1)
+        ignore_idx = getattr(opts, "loss.ignore_idx", -100)
         use_class_wts = getattr(
             opts, "loss.classification.cross_entropy.class_weights", False
         )
@@ -34,15 +35,15 @@ class ClsCrossEntropy(BaseCriteria):
             n_classes = prediction.shape[1]
             weight = self._class_weights(target=target, n_classes=n_classes)
 
-        return F.cross_entropy(
+        cross = F.cross_entropy(
             input=prediction,
-            target=target,
+            label=target,
             weight=weight,
             ignore_index=self.ignore_idx,
-            label_smoothing=self.label_smoothing
-            if self.training
-            else 0.0,  # for validation, compute standard CE loss
+            axis=1,
         )
+
+        return cross
 
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser):

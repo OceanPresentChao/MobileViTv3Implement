@@ -77,5 +77,5 @@ for file in os.listdir(loss_fn_dir):
     ):
         model_name = file[: file.find(".py")] if file.endswith(".py") else file
         module = importlib.import_module(
-            "loss_fn.classification_loss_fns." + model_name
+            "paddlepaddle.loss_fn.classification_loss_fns." + model_name
         )

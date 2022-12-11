@@ -3,7 +3,7 @@
 # Copyright (C) 2022 Apple Inc. All Rights Reserved.
 #
 
-from torch import Tensor
+from paddle import Tensor
 import argparse
 from utils import logger
 

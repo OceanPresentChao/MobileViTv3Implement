@@ -55,3 +55,6 @@ def evaluate(image, labels, model, acc, tag, reprod_logger):
     reprod_logger.add("acc_top5", np.array(accracy[1]))
 
     reprod_logger.save("./result/metric_{}.npy".format(tag))
+
+
+    
