@@ -4,7 +4,7 @@
 #
 
 import argparse
-from torch.optim import AdamW
+from paddle.optimizer import AdamW
 
 from . import register_optimizer
 from .base_optim import BaseOptim
