@@ -7,8 +7,8 @@ common:
   tensorboard_logging: false
   grad_clip: 10.0
 dataset:
-  root_train: "C:\\Users\\12553\\Desktop\\paddle\\MobileViTv3Implement\\data\\lite_data\\train"
-  root_val: "C:\\Users\\12553\\Desktop\\paddle\\MobileViTv3Implement\\data\\lite_data\\val"
+  root_train: "data/lite_data/train"
+  root_val: "data/lite_data/val"
   name: "imagenet"
   category: "classification"
   train_batch_size0: 85

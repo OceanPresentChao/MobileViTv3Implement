@@ -21,6 +21,7 @@ from utilities import loadModels,train_one_epoch_paddle,train_one_epoch_torch
 sys.argv[1:] = ['--common.config-file',
                 './config/classification/imagenet/config.yaml']  # simulate commandline
 
+
 def test_backward():
   max_iter = 3
 
@@ -30,7 +31,7 @@ def test_backward():
   FLAGS_cudnn_deterministic = True
 
   opts = get_training_arguments()
-  paddle_model,torch_model = loadModels(opts)
+  paddle_model, torch_model = loadModels(opts)
 
   # init loss
   criterion_paddle = build_loss_fn_pad(opts)
@@ -39,9 +40,10 @@ def test_backward():
   # init optimizer
   opt_paddle = build_optimizer_pad(paddle_model, opts)
   lr_scheduler_paddle = build_scheduler_pad(opts)
-
+  
   opt_torch = build_optimizer_ref(torch_model, opts)
   lr_scheduler_torch = build_scheduler_ref(opts)
+
 
   # prepare logger & load data
   reprod_logger = ReprodLogger()
@@ -49,8 +51,8 @@ def test_backward():
   labels = np.load("./data/fake_label.npy")
 
   train_one_epoch_paddle(inputs, labels, paddle_model, criterion_paddle,
-                        opt_paddle, lr_scheduler_paddle, max_iter,
-                        reprod_logger)
+                          opt_paddle, lr_scheduler_paddle, max_iter,
+                          reprod_logger)
 
   train_one_epoch_torch(inputs, labels, torch_model, criterion_torch,
                         opt_torch, lr_scheduler_torch, max_iter,
@@ -70,5 +72,3 @@ def compareOptim():
 if __name__ == "__main__":
     test_backward()
     compareOptim()
-
-    

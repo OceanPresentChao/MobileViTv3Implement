@@ -1,4 +1,3 @@
-
 from reprod_log import ReprodLogger
 from reprod_log import ReprodDiffHelper
 
@@ -6,20 +5,19 @@ import sys
 import paddle
 import torch
 import numpy as np
-from paddlepaddle.options.opts import get_training_arguments 
+from paddlepaddle.options.opts import get_training_arguments
 from torchsummary import summary as torch_summary
 from utilities import loadModels
 
 sys.argv[1:] = ['--common.config-file',
                 './config/classification/imagenet/config.yaml']  # simulate commandline
 
+
 def test_forword():
     opts = get_training_arguments()
     device = 'cpu'
     torch_device = torch.device("cuda:0" if device == "gpu" else "cpu")
-    paddle_model,torch_model = loadModels(opts)
-
-
+    paddle_model, torch_model = loadModels(opts)
 
     # [batch = 1,channel = 3,h,w]
     inputs = np.load("./data/fake_data.npy")
@@ -31,8 +29,6 @@ def test_forword():
 
     # compareParam(torch_model, paddle_model)
 
-
-    
     # save the paddle output
     reprod_logger = ReprodLogger()
     paddle_out = paddle_model(paddle.to_tensor(inputs, dtype="float32"))
@@ -47,29 +43,28 @@ def test_forword():
     reprod_logger.save("./result/forward_torch.npy")
 
 
-
-
 def load_torch_params(paddle_model, torch_patams):
     paddle_params = paddle_model.state_dict()
 
     fc_names = ['classifier']
-    for key,torch_value in torch_patams.items():
+    for key, torch_value in torch_patams.items():
         if 'num_batches_tracked' in key:
             continue
         key = key.replace("running_var", "_variance").replace("running_mean", "_mean").replace("module.", "")
         torch_value = torch_value.detach().cpu().numpy()
         if key in paddle_params:
             flag = [i in key for i in fc_names]
-            if any(flag) and "weight" in key :  # ignore bias
+            if any(flag) and "weight" in key:  # ignore bias
                 new_shape = [1, 0] + list(range(2, torch_value.ndim))
-                print(f"name: {key}, ori shape: {torch_value.shape}, new shape: {torch_value.transpose(new_shape).shape}")
+                print(
+                    f"name: {key}, ori shape: {torch_value.shape}, new shape: {torch_value.transpose(new_shape).shape}")
                 torch_value = torch_value.transpose(new_shape)
             paddle_params[key] = torch_value
         else:
             print(f'{key} not in paddle')
     paddle_model.set_state_dict(paddle_params)
 
-    
+
 def compareOutput():
     # load data
     diff_helper = ReprodDiffHelper()
@@ -81,15 +76,17 @@ def compareOutput():
     diff_helper.report(
         path="./result/log/forward_diff.log", diff_threshold=1e-5)
 
-def printParameters(model,filename):
+
+def printParameters(model, filename):
     with open(filename, "w") as f:
-            for name, param in model.named_parameters():
-                f.write(str(name)+ '  '+ str(param.shape)+'\n')
+        for name, param in model.named_parameters():
+            f.write(str(name) + '  ' + str(param.shape) + '\n')
     f.close()
 
+
 def compareParam(torch, paddle):
-    torch_list = [{'name':name, 'value': param} for name, param in torch.named_parameters()]
-    paddle_list = [{'name':name, 'value': param} for name, param in paddle.named_parameters()]
+    torch_list = [{'name': name, 'value': param} for name, param in torch.named_parameters()]
+    paddle_list = [{'name': name, 'value': param} for name, param in paddle.named_parameters()]
     with open("./result/param_diff.txt", "w") as f:
         ti = 0
         pi = 0
@@ -101,13 +98,12 @@ def compareParam(torch, paddle):
                 name = torch_list[ti]['name']
                 torch_value = torch_list[ti]['value'].detach().cpu().numpy()
                 paddle_value = paddle_list[pi]['value'].detach().cpu().numpy()
-                res = np.subtract(paddle_value,torch_value,dtype=np.float64)
-                f.write(str(name) + ': '+str(res) + '\n')
+                res = np.subtract(paddle_value, torch_value, dtype=np.float64)
+                f.write(str(name) + ': ' + str(res) + '\n')
             ti += 1
             pi += 1
+
 
 if __name__ == "__main__":
     test_forword()
     compareOutput()
-
-
