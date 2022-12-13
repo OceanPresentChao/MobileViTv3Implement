@@ -46,6 +46,8 @@ def build_optimizer(model: torch.nn.Module, opts) -> BaseOptim:
         model_params, lr_mult = model.get_trainable_parameters(
             weight_decay=weight_decay, no_decay_bn_filter_bias=no_decay_bn_filter_bias
         )
+    # print("lr_mult: ", lr_mult)
+    # print("model_params: ", model_params)
     setattr(opts, "optim.lr_multipliers", lr_mult)
     if optim_name in OPTIM_REGISTRY:
         optimizer = OPTIM_REGISTRY[optim_name](opts, model_params)
@@ -98,4 +100,4 @@ for file in os.listdir(optim_dir):
         and (file.endswith(".py") or os.path.isdir(path))
     ):
         optim_name = file[: file.find(".py")] if file.endswith(".py") else file
-        module = importlib.import_module("optim." + optim_name)
+        module = importlib.import_module("reference.optim." + optim_name)

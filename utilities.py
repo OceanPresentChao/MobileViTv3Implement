@@ -56,5 +56,54 @@ def evaluate(image, labels, model, acc, tag, reprod_logger):
 
     reprod_logger.save("./result/metric_{}.npy".format(tag))
 
+def train_one_epoch_paddle(inputs, labels, model, criterion, optimizer,
+                           lr_scheduler, max_iter, reprod_logger):
+    for idx in range(max_iter):
+        image = paddle.to_tensor(inputs, dtype="float32")
+        target = paddle.to_tensor(labels, dtype="int64")
+        # import pdb; pdb.set_trace()
+
+        output = model(image)
+        print("padddle iter output:",output)
+        loss = criterion(image,output, target)
+        print("padddle loss:",loss)
+
+        reprod_logger.add("loss_{}".format(idx), loss.cpu().detach().numpy())
+        # reprod_logger.add("lr_{}".format(idx), np.array(lr_scheduler.get_lr()))
+
+        optimizer.clear_grad()
+        optimizer = lr_scheduler.update_lr(
+                optimizer=optimizer, epoch=1, curr_iter=idx
+            )
+        loss.backward()
+        optimizer.step()
+
+    reprod_logger.save("./result/optim_paddle.npy")
+
+
+def train_one_epoch_torch(inputs, labels, model, criterion, optimizer,
+                          lr_scheduler, max_iter, reprod_logger):
+    for idx in range(max_iter):
+        image = torch.tensor(inputs, dtype=torch.float32)
+        target = torch.tensor(labels, dtype=torch.int64)
+
+        output = model(image)
+        print("torch iter output:",output)
+        loss = criterion(image,output, target)
+        print("torch loss:",loss)
+
+
+        reprod_logger.add("loss_{}".format(idx), loss.cpu().detach().numpy())
+        # reprod_logger.add("lr_{}".format(idx),
+        #                   np.array(lr_scheduler.get_last_lr()))
+
+        optimizer.zero_grad()
+        optimizer = lr_scheduler.update_lr(
+                optimizer=optimizer, epoch=1, curr_iter=idx
+            )
+        loss.backward()
+        optimizer.step()
+
+    reprod_logger.save("./result/optim_torch.npy")
 
     

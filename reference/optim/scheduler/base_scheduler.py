@@ -41,6 +41,7 @@ class BaseLRScheduler(object):
         if self.lr_multipliers is not None:
             assert len(self.lr_multipliers) == len(optimizer.param_groups)
             for g_id, param_group in enumerate(optimizer.param_groups):
+                print("torch param_group:", list(param_group.keys()))
                 param_group["lr"] = round(
                     lr * self.lr_multipliers[g_id], self.round_places
                 )

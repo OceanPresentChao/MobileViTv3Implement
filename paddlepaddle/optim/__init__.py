@@ -6,7 +6,7 @@
 import os
 import importlib
 
-import torch.nn
+import paddle.nn
 
 from utils import logger
 import argparse
@@ -32,7 +32,7 @@ def register_optimizer(name: str):
     return register_optimizer_class
 
 
-def build_optimizer(model: torch.nn.Module, opts) -> BaseOptim:
+def build_optimizer(model: paddle.nn.Layer, opts) -> BaseOptim:
     optim_name = getattr(opts, "optim.name", "sgd").lower()
     optimizer = None
     weight_decay = getattr(opts, "optim.weight_decay", 0.0)
@@ -98,4 +98,4 @@ for file in os.listdir(optim_dir):
         and (file.endswith(".py") or os.path.isdir(path))
     ):
         optim_name = file[: file.find(".py")] if file.endswith(".py") else file
-        module = importlib.import_module("optim." + optim_name)
+        module = importlib.import_module("paddlepaddle.optim." + optim_name)

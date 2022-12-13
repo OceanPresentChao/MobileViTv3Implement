@@ -23,12 +23,12 @@ class AdamWOptimizer(BaseOptim, AdamW):
         ams_grad = getattr(opts, "optim.adamw.amsgrad", False)
         AdamW.__init__(
             self,
-            params=model_params,
-            lr=self.lr,
-            betas=(beta1, beta2),
-            eps=self.eps,
+            parameters =model_params,
+            learning_rate=self.lr,
+            beta1 = beta1, 
+            beta2=beta2,
+            epsilon=self.eps,
             weight_decay=self.weight_decay,
-            amsgrad=ams_grad,
         )
 
     @classmethod

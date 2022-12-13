@@ -65,13 +65,13 @@ def parameter_list(
     else:
         for p_name, param in named_parameters():
             if (
-                param.requires_grad
+                not param.stop_gradient
                 and len(param.shape) == 1
                 and no_decay_bn_filter_bias
             ):
                 # biases and normalization layer parameters are of len 1
                 without_decay.append(param)
-            elif param.requires_grad:
+            elif param.stop_gradient:
                 with_decay.append(param)
     param_list = [{"params": with_decay, "weight_decay": weight_decay}]
     if len(without_decay) > 0:

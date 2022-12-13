@@ -114,4 +114,4 @@ for file in os.listdir(lr_sch_dir):
         and (file.endswith(".py") or os.path.isdir(path))
     ):
         lr_sch_name = file[: file.find(".py")] if file.endswith(".py") else file
-        module = importlib.import_module("optim.scheduler." + lr_sch_name)
+        module = importlib.import_module("reference.optim.scheduler." + lr_sch_name)
