@@ -24,11 +24,8 @@ def torch2paddle():
         k = k.replace("running_var", "_variance")
         k = k.replace("running_mean", "_mean")
         # if k not in model_state_dict:
-        if False:
-            print(k)
-        else:
-            print(k)
-            paddle_state_dict[k] = v
+        print(k)
+        paddle_state_dict[k] = v
     paddle.save(paddle_state_dict, paddle_path)
 
 

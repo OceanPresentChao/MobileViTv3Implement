@@ -11,7 +11,7 @@ from .collate_fns import build_collate_fn, build_eval_collate_fn
 from .loader.dataloader import CVNetsDataLoader
 
 
-def create_eval_loader(opts,eval_dataset):
+def create_eval_loader(opts, eval_dataset):
     if eval_dataset is None:
         raise ValueError("eval_dataset is None")
     n_eval_samples = len(eval_dataset)
@@ -68,8 +68,8 @@ def create_eval_loader(opts,eval_dataset):
     return eval_loader
 
 
-def create_train_val_loader(opts,train_dataset, valid_dataset):
-    if(train_dataset is None or valid_dataset is None):
+def create_train_val_loader(opts, train_dataset, valid_dataset):
+    if train_dataset is None or valid_dataset is None:
         raise ValueError("both train_dataset and valid_dataset can't be None ")
 
     n_train_samples = len(train_dataset)
@@ -88,7 +88,7 @@ def create_train_val_loader(opts,train_dataset, valid_dataset):
 
     data_workers = getattr(opts, "dataset.workers", 1)
     persistent_workers = getattr(opts, "dataset.persistent_workers", False) and (
-        data_workers > 0
+            data_workers > 0
     )
     pin_memory = getattr(opts, "dataset.pin_memory", False)
     prefetch_factor = getattr(opts, "dataset.prefetch_factor", 2)

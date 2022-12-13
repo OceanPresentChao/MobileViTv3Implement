@@ -37,7 +37,7 @@ def image_size_from_opts(opts) -> Tuple[int, int]:
 
 
 def create_rand_tensor(
-    opts, device: Optional[str] = "cpu", batch_size: Optional[int] = 1
+        opts, device: Optional[str] = "cpu", batch_size: Optional[int] = 1
 ) -> Tensor:
     sampler = getattr(opts, "sampler.name", "batch_sampler")
     im_h, im_w = image_size_from_opts(opts=opts)
@@ -50,6 +50,7 @@ def create_rand_tensor(
     )
     inp_tensor = paddle.divide(inp_tensor, paddle.to_tensor(255.0))
     return inp_tensor
+
 
 def copy_data(input_dir, output_dir, total_num=16):
     img_num = 0
@@ -68,9 +69,9 @@ def copy_data(input_dir, output_dir, total_num=16):
         img_num += 1
     return
 
+
 def gen_fake_data():
     fake_data = np.random.rand(1, 3, 256, 256).astype(np.float32) - 0.5
     fake_label = np.arange(1).astype(np.int64)
     np.save("./data/fake_data.npy", fake_data)
     np.save("./data/fake_label.npy", fake_label)
-

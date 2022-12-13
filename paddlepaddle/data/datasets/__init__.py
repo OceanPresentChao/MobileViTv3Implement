@@ -13,7 +13,6 @@ from utils import logger
 
 from .dataset_base import BaseImageDataset
 
-
 SUPPORTED_TASKS = []
 DATASET_REGISTRY = {}
 
@@ -297,10 +296,9 @@ for abs_dir_path in glob.glob("{}/*".format(dataset_dir)):
     if os.path.isdir(abs_dir_path):
         file_or_folder_name = os.path.basename(abs_dir_path).strip()
         if not file_or_folder_name.startswith(
-            "_"
+                "_"
         ) and not file_or_folder_name.startswith("."):
             SUPPORTED_TASKS.append(file_or_folder_name)
-
 
 # 如果config报错说没有不支持该任务，则是import有问题
 for task in SUPPORTED_TASKS:
@@ -308,9 +306,9 @@ for task in SUPPORTED_TASKS:
     for file in os.listdir(task_path):
         path = os.path.join(task_path, file)
         if (
-            not file.startswith("_")
-            and not file.startswith(".")
-            and (file.endswith(".py") or os.path.isdir(path))
+                not file.startswith("_")
+                and not file.startswith(".")
+                and (file.endswith(".py") or os.path.isdir(path))
         ):
             dataset_name = file[: file.find(".py")] if file.endswith(".py") else file
             module = importlib.import_module(

@@ -4,18 +4,19 @@ import numpy as np
 import sys
 from reprod_log import ReprodLogger
 from reprod_log import ReprodDiffHelper
-from paddlepaddle.options.opts import get_training_arguments 
-from utilities import loadModels, build_paddle_data_pipeline, build_torch_data_pipeline,evaluate
+from paddlepaddle.options.opts import get_training_arguments
+from utilities import loadModels, build_paddle_data_pipeline, build_torch_data_pipeline, evaluate
 from reference.metrics.topk_accuracy import top_k_accuracy as accuracy_torch
 from paddlepaddle.metrics.topk_accuracy import top_k_accuracy as accuracy_paddle
 
 sys.argv[1:] = ['--common.config-file',
                 './config/classification/imagenet/config.yaml']  # simulate commandline
 
+
 def test_forward():
     opts = get_training_arguments()
     # load paddle model
-    paddle_model,torch_model = loadModels(opts)
+    paddle_model, torch_model = loadModels(opts)
 
     # prepare logger & load data
     reprod_logger = ReprodLogger()
@@ -28,7 +29,8 @@ def test_forward():
             break
         evaluate(paddle.to_tensor(paddle_batch["image"]), paddle.to_tensor(paddle_batch["label"]), paddle_model,
                  accuracy_paddle, 'paddle', reprod_logger)
-        evaluate(torch.as_tensor(torch_batch["image"]), torch.as_tensor(torch_batch["label"]), torch_model, accuracy_torch,
+        evaluate(torch.as_tensor(torch_batch["image"]), torch.as_tensor(torch_batch["label"]), torch_model,
+                 accuracy_torch,
                  'torch', reprod_logger)
 
 
@@ -47,5 +49,3 @@ def compareEvaluation():
 if __name__ == "__main__":
     test_forward()
     compareEvaluation()
-
-    
