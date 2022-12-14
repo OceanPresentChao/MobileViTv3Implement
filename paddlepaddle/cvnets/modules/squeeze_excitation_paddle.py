@@ -6,7 +6,9 @@
 import paddle
 from paddle import nn, Tensor
 from typing import Optional
-from utils.math_utils import make_divisible
+
+from ...utils.math_utils import make_divisible
+
 
 from ..layers.adaptive_pool_paddle import AdaptiveAvgPool2d
 from ..layers.conv_layer_paddle import ConvLayer

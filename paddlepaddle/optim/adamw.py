@@ -20,15 +20,15 @@ class AdamWOptimizer(BaseOptim, AdamW):
         BaseOptim.__init__(self, opts=opts)
         beta1 = getattr(opts, "optim.adamw.beta1", 0.9)
         beta2 = getattr(opts, "optim.adamw.beta2", 0.98)
-        ams_grad = getattr(opts, "optim.adamw.amsgrad", False)
         AdamW.__init__(
             self,
-            parameters =model_params,
-            learning_rate=self.lr,
-            beta1 = beta1, 
+            parameters=model_params,
+            learning_rate=self.learning_rate,
+            beta1=beta1,
             beta2=beta2,
-            epsilon=self.eps,
+            epsilon=self.epsilon,
             weight_decay=self.weight_decay,
+            lazy_mode=True
         )
 
     @classmethod

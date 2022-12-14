@@ -8,7 +8,7 @@ results
 *.jpg
 .idea
 lite_data/
-
+try.py
 results*
 vision_datasets/
 exp_results/

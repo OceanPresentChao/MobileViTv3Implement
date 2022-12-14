@@ -93,9 +93,9 @@ optim_dir = os.path.dirname(__file__)
 for file in os.listdir(optim_dir):
     path = os.path.join(optim_dir, file)
     if (
-        not file.startswith("_")
-        and not file.startswith(".")
-        and (file.endswith(".py") or os.path.isdir(path))
+            not file.startswith("_")
+            and not file.startswith(".")
+            and (file.endswith(".py") or os.path.isdir(path))
     ):
         optim_name = file[: file.find(".py")] if file.endswith(".py") else file
         module = importlib.import_module("paddlepaddle.optim." + optim_name)

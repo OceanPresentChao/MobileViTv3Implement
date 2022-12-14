@@ -6,7 +6,7 @@
 from paddle import nn, Tensor
 from typing import Optional, Union, Tuple
 
-from utils.math_utils import make_divisible
+from paddlepaddle.utils.math_utils import make_divisible
 
 from .base_module_paddle import BaseModule
 from .squeeze_excitation_paddle import SqueezeExcitation

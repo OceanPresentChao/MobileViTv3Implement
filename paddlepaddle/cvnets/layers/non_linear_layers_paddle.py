@@ -5,7 +5,8 @@
 
 from paddle import nn
 from typing import Optional
-from utils import logger
+
+from paddlepaddle.utils import logger
 
 from .activation import (
     ReLU,

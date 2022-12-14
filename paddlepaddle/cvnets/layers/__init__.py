@@ -8,6 +8,8 @@ import os
 import importlib
 import inspect
 
+from paddle.nn import MaxPool2D, AvgPool2D
+
 from .base_layer_paddle import BaseLayer
 from .conv_layer_paddle import (
     ConvLayer,
@@ -16,6 +18,7 @@ from .conv_layer_paddle import (
     ConvLayer3d,
     SeparableConv,
 )
+from .flatten_paddle import Flatten
 from .linear_layer_paddle import LinearLayer, GroupLinear
 from .global_pool_paddle import GlobalPool
 from .identity_paddle import Identity
@@ -30,6 +33,8 @@ from .adaptive_pool_paddle import AdaptiveAvgPool2d
 # from .flatten import Flatten
 from .multi_head_attention_paddle import MultiHeadAttention
 from .dropout_paddle import Dropout, Dropout2d
+from .pixel_shuffle_paddle import PixelShuffle
+from .positional_encoding import LearnablePositionEncoding, SinusoidalPositionalEncoding
 from .single_head_attention_paddle import SingleHeadAttention
 # from .softmax import Softmax
 from .linear_attention_paddle import LinearSelfAttention
@@ -46,8 +51,8 @@ __all__ = [
     "Identity",
     "PixelShuffle",
     "UpSample",
-    "MaxPool2d",
-    "AvgPool2d",
+    "MaxPool2D",
+    "AvgPool2D",
     "Dropout",
     "Dropout2d",
     "SinusoidalPositionalEncoding",
@@ -60,17 +65,20 @@ __all__ = [
     "LinearSelfAttention",
 ]
 
-
 # iterate through all classes and fetch layer specific arguments
+from .softmax_paddle import Softmax
+from .upsample import UpSample
+
+
 def layer_specific_args(parser: argparse.ArgumentParser):
     layer_dir = os.path.dirname(__file__)
     parsed_layers = []
     for file in os.listdir(layer_dir):
         path = os.path.join(layer_dir, file)
         if (
-            not file.startswith("_")
-            and not file.startswith(".")
-            and (file.endswith(".py") or os.path.isdir(path))
+                not file.startswith("_")
+                and not file.startswith(".")
+                and (file.endswith(".py") or os.path.isdir(path))
         ):
             layer_name = file[: file.find(
                 ".py")] if file.endswith(".py") else file
@@ -87,11 +95,12 @@ def arguments_nn_layers(parser: argparse.ArgumentParser):
     parser = layer_specific_args(parser)
 
     # activation and normalization arguments
-    from cvnets.layers.activation import arguments_activation_fn
+
+    from .activation import arguments_activation_fn
 
     parser = arguments_activation_fn(parser)
 
-    from cvnets.layers.normalization import arguments_norm_layers
+    from .normalization import arguments_norm_layers
 
     parser = arguments_norm_layers(parser)
 
