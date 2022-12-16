@@ -5,7 +5,7 @@
 
 from typing import Dict
 
-from paddlepaddle.utils import logger
+from utils import logger
 
 
 def get_configuration(opts) -> Dict:

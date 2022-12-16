@@ -24,7 +24,7 @@ class SGDOptimizer(BaseOptim, SGD):
         SGD.__init__(
             self,
             params=model_params,
-            lr=self.learning_rate,
+            lr=self.lr,
             momentum=momentum,
             weight_decay=self.weight_decay,
             nesterov=nesterov,

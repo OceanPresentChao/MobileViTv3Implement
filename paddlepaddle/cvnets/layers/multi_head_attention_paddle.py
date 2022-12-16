@@ -3,7 +3,8 @@ from paddle import nn, Tensor
 from typing import Optional, Tuple
 from paddle.nn import functional as F
 
-from paddlepaddle.utils import logger
+from utils import logger
+
 from .base_layer_paddle import BaseLayer
 from .linear_layer_paddle import LinearLayer
 from .dropout_paddle import Dropout
@@ -29,14 +30,14 @@ class MultiHeadAttention(BaseLayer):
     """
 
     def __init__(
-            self,
-            embed_dim: int,
-            num_heads: int,
-            attn_dropout: Optional[float] = 0.0,
-            bias: Optional[bool] = True,
-            coreml_compatible: Optional[bool] = False,
-            *args,
-            **kwargs
+        self,
+        embed_dim: int,
+        num_heads: int,
+        attn_dropout: Optional[float] = 0.0,
+        bias: Optional[bool] = True,
+        coreml_compatible: Optional[bool] = False,
+        *args,
+        **kwargs
     ) -> None:
         super().__init__()
         if embed_dim % num_heads != 0:
@@ -134,8 +135,8 @@ class MultiHeadAttention(BaseLayer):
             # [N, P, C] --> [N, P, h, c] --> [N, h, P, c]
             query = (
                 query.reshape(b_sz, n_patches, self.num_heads, self.head_dim)
-                    .transpose(1, 2)
-                    .contiguous()
+                .transpose(1, 2)
+                .contiguous()
             )
 
             # [N, P, C] --> [N, P, 2C]
@@ -172,7 +173,7 @@ class MultiHeadAttention(BaseLayer):
         return out
 
     def forward(
-            self, x_q: Tensor, x_kv: Optional[Tensor] = None, *args, **kwargs
+        self, x_q: Tensor, x_kv: Optional[Tensor] = None, *args, **kwargs
     ) -> Tensor:
         if self.coreml_compatible:
             return self.forward_tracing(x_q=x_q, x_kv=x_kv)

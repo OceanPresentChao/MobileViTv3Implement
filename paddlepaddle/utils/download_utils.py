@@ -8,9 +8,8 @@ import copy
 import torch.distributed as dist
 from urllib import request
 
-from paddlepaddle.common import TMP_CACHE_LOC
-from paddlepaddle.utils.ddp_utils import is_start_rank_node
-
+from common import TMP_CACHE_LOC
+from utils.ddp_utils import is_start_rank_node
 
 
 try:

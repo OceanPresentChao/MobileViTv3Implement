@@ -8,7 +8,7 @@ from paddle import Tensor
 import argparse
 from typing import List, Optional, Tuple
 
-from paddlepaddle.utils import logger
+from utils import logger
 
 from .base_layer_paddle import BaseLayer
 

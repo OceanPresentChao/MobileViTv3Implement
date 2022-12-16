@@ -9,7 +9,7 @@ from paddle import Tensor
 from typing import Optional, Union, Tuple
 import argparse
 
-from paddlepaddle.utils import logger
+from utils import logger
 
 from .base_layer_paddle import BaseLayer
 from .normalization_layers_paddle import get_normalization_layer

@@ -6,6 +6,7 @@
 
 import paddle
 import paddle.distributed as dist
+from utils import logger
 
 
 def is_master(opts) -> bool:

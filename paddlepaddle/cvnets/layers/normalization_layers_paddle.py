@@ -6,17 +6,17 @@
 import paddle
 from paddle import nn, device
 from typing import Optional
-from paddlepaddle.utils import logger
+from utils import logger
 import math
 from .identity_paddle import Identity
 from .normalization import (
     SUPPORTED_NORM_FNS,
 )
-from paddlepaddle.cvnets.layers.normalization.layer_norm_paddle import LayerNorm, LayerNorm2D
-from paddlepaddle.cvnets.layers.normalization.sync_batch_norm_paddle import SyncBatchNorm
-from paddlepaddle.cvnets.layers.normalization.instance_norm_paddle import InstanceNorm1d, InstanceNorm2d
-from paddlepaddle.cvnets.layers.normalization.group_norm_paddle import GroupNorm
-from paddlepaddle.cvnets.layers.normalization.batch_norm_paddle import BatchNorm2d, BatchNorm1d, BatchNorm3d
+from cvnets.layers.normalization.layer_norm_paddle import LayerNorm, LayerNorm2D
+from cvnets.layers.normalization.sync_batch_norm_paddle import SyncBatchNorm
+from cvnets.layers.normalization.instance_norm_paddle import InstanceNorm1d, InstanceNorm2d
+from cvnets.layers.normalization.group_norm_paddle import GroupNorm
+from cvnets.layers.normalization.batch_norm_paddle import BatchNorm2d, BatchNorm1d, BatchNorm3d
 
 norm_layers_tuple = (
     BatchNorm1d,
@@ -107,7 +107,7 @@ class AdjustBatchNormMomentum(object):
 
     round_places = 6
 
-    def __init__(self, opts: object, *args: object, **kwargs: object) -> object:
+    def __init__(self, opts, *args, **kwargs):
         self.is_iteration_based = getattr(
             opts, "scheduler.is_iteration_based", True)
         self.warmup_iterations = getattr(

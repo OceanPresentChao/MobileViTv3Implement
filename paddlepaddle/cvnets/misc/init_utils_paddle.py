@@ -6,7 +6,7 @@
 from paddle import nn, ParamAttr
 from typing import Optional
 
-from paddlepaddle.utils import logger
+from utils import logger
 
 from ..layers.linear_layer_paddle import LinearLayer, GroupLinear
 from ..layers.normalization_layers_paddle import norm_layers_tuple

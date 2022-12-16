@@ -7,16 +7,15 @@ import torch
 import os
 from typing import Optional
 
-from paddlepaddle.utils import logger
-
+from utils import logger
 
 
 def load_pretrained_model(
-        model: torch.nn.Module,
-        wt_loc: str,
-        is_master_node: Optional[bool] = False,
-        *args,
-        **kwargs
+    model: torch.nn.Module,
+    wt_loc: str,
+    is_master_node: Optional[bool] = False,
+    *args,
+    **kwargs
 ) -> torch.nn.Module:
     """
     Helper function to load pre-trained weights
@@ -43,11 +42,11 @@ def load_pretrained_model(
 
 
 def parameter_list(
-        named_parameters,
-        weight_decay: Optional[float] = 0.0,
-        no_decay_bn_filter_bias: Optional[bool] = False,
-        *args,
-        **kwargs
+    named_parameters,
+    weight_decay: Optional[float] = 0.0,
+    no_decay_bn_filter_bias: Optional[bool] = False,
+    *args,
+    **kwargs
 ):
     with_decay = []
     without_decay = []
@@ -55,9 +54,9 @@ def parameter_list(
         for n_parameter in named_parameters:
             for p_name, param in n_parameter():
                 if (
-                        param.requires_grad
-                        and len(param.shape) == 1
-                        and no_decay_bn_filter_bias
+                    param.requires_grad
+                    and len(param.shape) == 1
+                    and no_decay_bn_filter_bias
                 ):
                     # biases and normalization layer parameters are of len 1
                     without_decay.append(param)
@@ -66,9 +65,9 @@ def parameter_list(
     else:
         for p_name, param in named_parameters():
             if (
-                    not param.stop_gradient
-                    and len(param.shape) == 1
-                    and no_decay_bn_filter_bias
+                not param.stop_gradient
+                and len(param.shape) == 1
+                and no_decay_bn_filter_bias
             ):
                 # biases and normalization layer parameters are of len 1
                 without_decay.append(param)

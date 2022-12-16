@@ -24,7 +24,7 @@ class AdamOptimizer(BaseOptim, Adam):
         Adam.__init__(
             self,
             params=model_params,
-            lr=self.learning_rate,
+            lr=self.lr,
             betas=(beta1, beta2),
             eps=self.eps,
             weight_decay=self.weight_decay,

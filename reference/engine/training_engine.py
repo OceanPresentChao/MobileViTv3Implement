@@ -309,7 +309,6 @@ class Trainer(object):
 
             input_img, target_label = batch["image"], batch["label"]
 
-
             batch_size = self._get_batch_size(input_img)
 
             # update the learning rate

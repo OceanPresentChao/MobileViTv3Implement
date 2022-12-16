@@ -7,7 +7,7 @@ from torch import nn
 import argparse
 from typing import Dict, Tuple, Optional
 
-from paddlepaddle.utils import logger
+from utils import logger
 
 from . import register_cls_models
 from .base_cls_paddle import BaseEncoder

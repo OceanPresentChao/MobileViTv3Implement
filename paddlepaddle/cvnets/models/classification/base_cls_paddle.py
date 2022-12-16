@@ -4,8 +4,7 @@ from typing import Optional, Dict, Tuple, Union
 import argparse
 import math
 
-from paddlepaddle.utils import logger
-
+from utils import logger
 
 from ... import parameter_list
 from ...layers import LinearLayer, norm_layers_tuple

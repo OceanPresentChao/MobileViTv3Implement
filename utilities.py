@@ -1,8 +1,6 @@
 import paddle
 import torch
 import numpy as np
-from paddle.optimizer import Optimizer
-
 from paddlepaddle.options.opts import get_training_arguments
 
 from paddlepaddle.cvnets.models.classification import build_classification_model as build_model_pad
@@ -12,8 +10,6 @@ from reference.data.datasets import train_val_datasets as create_datasets_ref
 from reference.data.data_loaders import create_train_val_loader as create_loader_ref
 from paddlepaddle.data.datasets import train_val_datasets as create_datasets_pad
 from paddlepaddle.data.data_loaders import create_train_val_loader as create_loader_pad
-from reference.utils import logger
-from paddlepaddle.utils import logger
 
 
 def loadModels(opts):
@@ -60,63 +56,54 @@ def evaluate(image, labels, model, acc, tag, reprod_logger):
 
     reprod_logger.save("./result/metric_{}.npy".format(tag))
 
-
 def train_one_epoch_paddle(inputs, labels, model, criterion, optimizer,
-                           lr_scheduler, max_iter, reprod_logger, adjust_norm_mom):
+                           lr_scheduler, max_iter, reprod_logger):
     for idx in range(max_iter):
         image = paddle.to_tensor(inputs, dtype="float32")
         target = paddle.to_tensor(labels, dtype="int64")
         # import pdb; pdb.set_trace()
 
+        output = model(image)
+        print("padddle iter output:",output)
+        loss = criterion(image,output, target)
+        print("padddle loss:",loss)
+
+        reprod_logger.add("loss_{}".format(idx), loss.cpu().detach().numpy())
         # reprod_logger.add("lr_{}".format(idx), np.array(lr_scheduler.get_lr()))
 
+        optimizer.clear_grad()
         optimizer = lr_scheduler.update_lr(
-            optimizer=optimizer, epoch=1, curr_iter=idx
-        )
-        if adjust_norm_mom is not None:
-            adjust_norm_mom.adjust_momentum(
-                model=model, epoch=1, iteration=idx
+                optimizer=optimizer, epoch=1, curr_iter=idx
             )
-        output = model(image)
-        print("paddle iter output:", output)
-        loss = criterion(image, output, target)
-        print("paddle loss:", loss)
-        if isinstance(loss, paddle.Tensor) and paddle.isnan(loss):
-            logger.error("Nan encountered in the loss.")
-        reprod_logger.add("loss_{}".format(idx), loss.cpu().detach().numpy())
         loss.backward()
         optimizer.step()
-        optimizer.clear_grad()
-        # lr_scheduler.step()
 
     reprod_logger.save("./result/optim_paddle.npy")
 
 
 def train_one_epoch_torch(inputs, labels, model, criterion, optimizer,
-                          lr_scheduler, max_iter, reprod_logger, adjust_norm_mom):
+                          lr_scheduler, max_iter, reprod_logger):
     for idx in range(max_iter):
         image = torch.tensor(inputs, dtype=torch.float32)
         target = torch.tensor(labels, dtype=torch.int64)
 
+        output = model(image)
+        print("torch iter output:",output)
+        loss = criterion(image,output, target)
+        print("torch loss:",loss)
+
+
+        reprod_logger.add("loss_{}".format(idx), loss.cpu().detach().numpy())
         # reprod_logger.add("lr_{}".format(idx),
         #                   np.array(lr_scheduler.get_last_lr()))
+
+        optimizer.zero_grad()
         optimizer = lr_scheduler.update_lr(
-            optimizer=optimizer, epoch=1, curr_iter=idx
-        )
-        if adjust_norm_mom is not None:
-            adjust_norm_mom.adjust_momentum(
-                model=model, epoch=1, iteration=idx
+                optimizer=optimizer, epoch=1, curr_iter=idx
             )
-        output = model(image)
-        print("torch iter output:", output)
-        loss = criterion(image, output, target)
-        print("torch loss:", loss)
-        if isinstance(loss, torch.Tensor) and torch.isnan(loss):
-            logger.error("Nan encountered in the loss.")
-        reprod_logger.add("loss_{}".format(idx), loss.cpu().detach().numpy())
         loss.backward()
         optimizer.step()
-        optimizer.zero_grad()
-        # lr_scheduler.step()
 
     reprod_logger.save("./result/optim_torch.npy")
+
+    

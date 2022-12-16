@@ -4,8 +4,7 @@ from typing import Optional, Tuple
 import argparse
 from paddle.nn import functional as F
 from paddle.nn import initializer
-
-from paddlepaddle.utils import logger
+from utils import logger
 import math
 
 from .base_layer_paddle import BaseLayer
@@ -28,20 +27,19 @@ class LinearLayer(nn.Linear):
     """
 
     def __init__(
-            self,
-            in_features: int,
-            out_features: int,
-            bias: Optional[bool] = True,
-            channel_first: Optional[bool] = False,
-            *args,
-            **kwargs
+        self,
+        in_features: int,
+        out_features: int,
+        bias: Optional[bool] = True,
+        channel_first: Optional[bool] = False,
+        *args,
+        **kwargs
     ) -> None:
-        super().__init__(
-            weight_attr=paddle.ParamAttr(initializer=nn.initializer.Uniform(-1 / math.sqrt(4096), 1 / math.sqrt(4096))),
-            bias_attr=paddle.ParamAttr(initializer=nn.initializer.Uniform(
-                -1 / math.sqrt(4096), 1 / math.sqrt(4096)) if bias else None),
-            in_features=in_features,
-            out_features=out_features)
+        super().__init__(weight_attr=paddle.ParamAttr(initializer=nn.initializer.Uniform(-1/math.sqrt(4096), 1/math.sqrt(4096))),
+                         bias_attr=paddle.ParamAttr(initializer=nn.initializer.Uniform(
+                             -1/math.sqrt(4096), 1/math.sqrt(4096)) if bias else None),
+                         in_features=in_features,
+                         out_features=out_features)
 
         self.out_features = out_features
         self.in_features = in_features
@@ -88,9 +86,9 @@ class LinearLayer(nn.Linear):
             with paddle.no_grad():
                 return F.conv2d(
                     x=x,
-                    weight=self.weight.clone()
-                        .detach()
-                        .reshape(self.out_features, self.in_features, 1, 1),
+                    weight=self.weight .clone()
+                    .detach()
+                    .reshape(self.out_features, self.in_features, 1, 1),
                     bias=self.bias,
                 )
         else:
@@ -111,7 +109,7 @@ class LinearLayer(nn.Linear):
         return repr_str
 
     def profile_module(
-            self, input: Tensor, *args, **kwargs
+        self, input: Tensor, *args, **kwargs
     ) -> Tuple[Tensor, float, float]:
         out_size = list(input.shape)
         out_size[-1] = self.out_features
@@ -141,14 +139,14 @@ class GroupLinear(BaseLayer):
     """
 
     def __init__(
-            self,
-            in_features: int,
-            out_features: int,
-            n_groups: int,
-            bias: Optional[bool] = True,
-            feature_shuffle: Optional[bool] = False,
-            *args,
-            **kwargs
+        self,
+        in_features: int,
+        out_features: int,
+        n_groups: int,
+        bias: Optional[bool] = True,
+        feature_shuffle: Optional[bool] = False,
+        *args,
+        **kwargs
     ) -> None:
         if in_features % n_groups != 0:
             logger.error(

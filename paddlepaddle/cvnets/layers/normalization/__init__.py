@@ -8,8 +8,6 @@ import os
 import importlib
 import argparse
 
-from paddle.nn import BatchNorm3D, BatchNorm2D, BatchNorm1D, InstanceNorm1D, InstanceNorm2D
-
 SUPPORTED_NORM_FNS = []
 
 
@@ -37,7 +35,7 @@ for file in os.listdir(norm_dir):
     ):
         model_name = file[: file.find(".py")] if file.endswith(".py") else file
         module = importlib.import_module(
-            "paddlepaddle.cvnets.layers.normalization." + model_name)
+            "cvnets.layers.normalization." + model_name)
 
 
 def arguments_norm_layers(parser: argparse.ArgumentParser):
@@ -90,12 +88,12 @@ def arguments_norm_layers(parser: argparse.ArgumentParser):
 
 
 __all__ = [
-    "BatchNorm3D",
-    "BatchNorm2D",
-    "BatchNorm1D",
+    "BatchNorm3d",
+    "BatchNorm2d",
+    "BatchNorm1d",
     "GroupNorm",
-    "InstanceNorm1D",
-    "InstanceNorm2D",
+    "InstanceNorm1d",
+    "InstanceNorm2d",
     "SyncBatchNorm",
     "LayerNorm",
     "LayerNorm2D",

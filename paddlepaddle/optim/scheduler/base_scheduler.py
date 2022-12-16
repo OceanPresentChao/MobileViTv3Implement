@@ -5,9 +5,6 @@
 
 import argparse
 
-import paddle.optimizer
-import numpy as np
-
 
 class BaseLRScheduler(object):
     def __init__(self, opts) -> None:
@@ -38,24 +35,24 @@ class BaseLRScheduler(object):
     def get_lr(self, epoch: int, curr_iter: int):
         raise NotImplementedError
 
-    def update_lr(self, optimizer: paddle.optimizer.Optimizer, epoch: int, curr_iter: int):
+    def update_lr(self, optimizer, epoch: int, curr_iter: int):
         lr = self.get_lr(epoch=epoch, curr_iter=curr_iter)
         lr = max(0.0, lr)
         if self.lr_multipliers is not None:
-            assert len(self.lr_multipliers) == len(optimizer.param_groups)
-            for g_id, param_group in enumerate(optimizer.param_groups):
-                print("paddle param_group:", list(param_group.keys()))
-                param_group["learning_rate"] = round(
+            # 问题在这！！！！
+            assert len(self.lr_multipliers) == len(optimizer._param_groups)
+            for g_id, param_group in enumerate(optimizer._param_groups):
+                param_group["lr"] = round(
                     lr * self.lr_multipliers[g_id], self.round_places
                 )
         else:
-            for param_group in optimizer.param_groups:
-                param_group["learning_rate"] = round(lr, self.round_places)
+            for param_group in optimizer._param_groups:
+                param_group["lr"] = round(lr, self.round_places)
         return optimizer
 
     @staticmethod
     def retrieve_lr(optimizer) -> list:
         lr_list = []
         for param_group in optimizer.param_groups:
-            lr_list.append(param_group["learning_rate"])
+            lr_list.append(param_group["lr"])
         return lr_list
