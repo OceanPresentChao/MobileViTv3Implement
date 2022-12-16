@@ -11,9 +11,9 @@ from typing import Union, Dict, Optional, Tuple
 from torch import Tensor
 from sys import platform
 
-from utils import logger
-from utils.ddp_utils import is_master
-from cvnets.layers import norm_layers_tuple
+from reference.utils import logger
+from reference.utils.ddp_utils import is_master
+from reference.cvnets.layers import norm_layers_tuple
 
 
 def check_compatibility():

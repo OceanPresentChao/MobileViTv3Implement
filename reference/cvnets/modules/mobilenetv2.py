@@ -6,7 +6,7 @@
 from torch import nn, Tensor
 from typing import Optional, Union, Tuple
 
-from utils.math_utils import make_divisible
+from reference.utils.math_utils import make_divisible
 
 from . import BaseModule, SqueezeExcitation
 from ..misc.profiler import module_profile

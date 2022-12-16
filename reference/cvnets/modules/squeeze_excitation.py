@@ -6,7 +6,7 @@
 import torch
 from torch import nn, Tensor
 from typing import Optional
-from utils.math_utils import make_divisible
+from reference.utils.math_utils import make_divisible
 
 from ..layers import AdaptiveAvgPool2d, ConvLayer, get_activation_fn
 from ..modules import BaseModule

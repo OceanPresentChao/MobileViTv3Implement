@@ -8,7 +8,7 @@ from torch import nn, Tensor
 from typing import Optional, Union, Tuple
 import argparse
 
-from utils import logger
+from reference.utils import logger
 
 from .base_layer import BaseLayer
 from .normalization_layers import get_normalization_layer

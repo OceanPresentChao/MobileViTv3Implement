@@ -3,7 +3,7 @@ from paddle import nn, Tensor
 from typing import Optional, Tuple
 from paddle.nn import functional as F
 
-from utils import logger
+from paddlepaddle.utils import logger
 
 from .base_layer_paddle import BaseLayer
 from .linear_layer_paddle import LinearLayer

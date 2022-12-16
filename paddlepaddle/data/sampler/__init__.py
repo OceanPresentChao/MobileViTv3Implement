@@ -6,10 +6,10 @@
 import os
 import importlib
 from typing import Optional
-from utils import logger
+from paddlepaddle.utils import logger
 import argparse
 
-from utils.ddp_utils import is_master
+from paddlepaddle.utils.ddp_utils import is_master
 
 from .base_sampler import BaseSamplerDDP, BaseSamplerDP
 

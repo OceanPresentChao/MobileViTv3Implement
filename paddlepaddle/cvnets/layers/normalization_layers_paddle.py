@@ -6,17 +6,17 @@
 import paddle
 from paddle import nn, device
 from typing import Optional
-from utils import logger
+from paddlepaddle.utils import logger
 import math
 from .identity_paddle import Identity
 from .normalization import (
     SUPPORTED_NORM_FNS,
 )
-from cvnets.layers.normalization.layer_norm_paddle import LayerNorm, LayerNorm2D
-from cvnets.layers.normalization.sync_batch_norm_paddle import SyncBatchNorm
-from cvnets.layers.normalization.instance_norm_paddle import InstanceNorm1d, InstanceNorm2d
-from cvnets.layers.normalization.group_norm_paddle import GroupNorm
-from cvnets.layers.normalization.batch_norm_paddle import BatchNorm2d, BatchNorm1d, BatchNorm3d
+from paddlepaddle.cvnets.layers.normalization.layer_norm_paddle import LayerNorm, LayerNorm2D
+from paddlepaddle.cvnets.layers.normalization.sync_batch_norm_paddle import SyncBatchNorm
+from paddlepaddle.cvnets.layers.normalization.instance_norm_paddle import InstanceNorm1d, InstanceNorm2d
+from paddlepaddle.cvnets.layers.normalization.group_norm_paddle import GroupNorm
+from paddlepaddle.cvnets.layers.normalization.batch_norm_paddle import BatchNorm2d, BatchNorm1d, BatchNorm3d
 
 norm_layers_tuple = (
     BatchNorm1d,

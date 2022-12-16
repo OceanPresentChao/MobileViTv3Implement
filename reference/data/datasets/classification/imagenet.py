@@ -9,7 +9,7 @@ from torchvision.datasets import ImageFolder
 import torch
 import argparse
 
-from utils import logger
+from reference.utils import logger
 
 from .. import register_dataset
 from ..dataset_base import BaseImageDataset

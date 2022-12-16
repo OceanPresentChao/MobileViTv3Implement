@@ -6,7 +6,7 @@
 from torch import nn
 from typing import Optional
 
-from utils import logger
+from reference.utils import logger
 
 from ..layers import LinearLayer, GroupLinear, norm_layers_tuple
 

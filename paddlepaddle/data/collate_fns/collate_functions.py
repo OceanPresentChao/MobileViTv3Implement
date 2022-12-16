@@ -1,7 +1,7 @@
 import paddle
 from typing import List, Dict
 
-from utils import logger
+from paddlepaddle.utils import logger
 
 from . import register_collate_fn
 

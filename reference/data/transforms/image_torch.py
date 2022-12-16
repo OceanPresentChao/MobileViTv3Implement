@@ -10,7 +10,7 @@ import torch
 from torchvision.transforms import functional as F
 from torch.nn import functional as F_torch
 
-from utils import logger
+from reference.utils import logger
 
 from . import register_transformations, BaseTransformation
 

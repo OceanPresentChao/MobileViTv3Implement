@@ -4,7 +4,7 @@
 #
 
 import argparse
-from utils import logger
+from reference.utils import logger
 import os
 
 # from .segmentation import arguments_segmentation, build_segmentation_model

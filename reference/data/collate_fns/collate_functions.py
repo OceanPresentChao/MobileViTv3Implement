@@ -6,7 +6,7 @@
 import torch
 from typing import List, Dict
 
-from utils import logger
+from reference.utils import logger
 
 from . import register_collate_fn
 

@@ -5,8 +5,8 @@
 
 import paddle
 from paddle import nn, Tensor
-from typing import Optional
-from utils.math_utils import make_divisible
+from typing import Optional,Tuple
+from paddlepaddle.utils.math_utils import make_divisible
 
 from ..layers.adaptive_pool_paddle import AdaptiveAvgPool2d
 from ..layers.conv_layer_paddle import ConvLayer
@@ -85,7 +85,7 @@ class SqueezeExcitation(BaseModule):
     def forward(self, x: Tensor, *args, **kwargs) -> Tensor:
         return x * self.se_layer(x)
 
-    def profile_module(self, input: Tensor, *args, **kwargs) -> (Tensor, float, float):
+    def profile_module(self, input: Tensor, *args, **kwargs) -> Tuple[Tensor, float, float]:
         _, params, macs = module_profile(module=self.se_layer, x=input)
         return input, params, macs
 

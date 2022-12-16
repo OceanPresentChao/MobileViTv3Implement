@@ -9,8 +9,8 @@ import numpy as np
 import copy
 from typing import Optional, List
 
-from utils.color_map import Colormap
-from utils import logger
+from reference.utils.color_map import Colormap
+from reference.utils import logger
 
 FONT_SIZE = cv2.FONT_HERSHEY_PLAIN
 LABEL_COLOR = [255, 255, 255]

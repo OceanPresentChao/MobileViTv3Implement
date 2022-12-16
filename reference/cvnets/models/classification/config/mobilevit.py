@@ -5,7 +5,7 @@
 
 from typing import Dict
 
-from utils import logger
+from reference.utils import logger
 
 
 def get_configuration(opts) -> Dict:

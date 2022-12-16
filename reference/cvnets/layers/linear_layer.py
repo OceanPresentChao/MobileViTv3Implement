@@ -9,7 +9,7 @@ from typing import Optional, Tuple
 import argparse
 from torch.nn import functional as F
 
-from utils import logger
+from reference.utils import logger
 
 from .base_layer import BaseLayer
 

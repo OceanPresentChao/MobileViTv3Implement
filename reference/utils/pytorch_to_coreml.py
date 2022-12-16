@@ -12,7 +12,7 @@ from PIL import Image
 from torchvision.transforms import functional as F
 
 
-from utils.tensor_utils import create_rand_tensor
+from reference.utils.tensor_utils import create_rand_tensor
 from torch.utils.mobile_optimizer import optimize_for_mobile
 
 

@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 import argparse
 from paddle.nn import functional as F
 from paddle.nn import initializer
-from utils import logger
+from paddlepaddle.utils import logger
 import math
 
 from .base_layer_paddle import BaseLayer

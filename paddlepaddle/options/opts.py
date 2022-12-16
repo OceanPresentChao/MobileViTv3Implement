@@ -5,6 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(__file__, '../../')))
 import argparse
 from typing import Optional
 
+from data.transforms import arguments_augmentation
 from data.sampler import arguments_sampler
 from data.collate_fns import arguments_collate_fn
 from options.utils import load_config_file
@@ -15,9 +16,8 @@ from loss_fn import arguments_loss_fn
 from optim import arguments_optimizer
 from optim.scheduler import arguments_scheduler
 from common import SUPPORTED_MODALITIES
-from data.transforms import arguments_augmentation
 from metrics import arguments_stats
-from data.video_reader import arguments_video_reader
+# from data.video_reader import arguments_video_reader
 from cvnets.matcher_det import arguments_box_matcher
 from utils import logger
 
@@ -266,11 +266,12 @@ def get_training_arguments(parse_args: Optional[bool] = True):
     parser = arguments_box_matcher(parser=parser)
 
     # Video reader related arguments
-    parser = arguments_video_reader(parser=parser)
+    # parser = arguments_video_reader(parser=parser)
 
     # collate fn  related arguments
     parser = arguments_collate_fn(parser=parser)
 
+    print("augmentation arguments")
     # transform related arguments
     parser = arguments_augmentation(parser=parser)
 

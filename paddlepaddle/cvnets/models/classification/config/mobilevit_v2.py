@@ -6,8 +6,8 @@
 import math
 from typing import Dict, Sequence
 
-from utils import logger
-from utils.math_utils import make_divisible, bound_fn
+from paddlepaddle.utils import logger
+from paddlepaddle.utils.math_utils import make_divisible, bound_fn
 
 
 def get_configuration(opts) -> Dict:

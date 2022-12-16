@@ -7,7 +7,7 @@ import torch
 import os
 from typing import Optional
 
-from utils import logger
+from paddlepaddle.utils import logger
 
 
 def load_pretrained_model(

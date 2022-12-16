@@ -5,7 +5,7 @@
 
 from torch import nn
 from typing import Optional
-from utils import logger
+from reference.utils import logger
 
 from .activation import (
     ReLU,

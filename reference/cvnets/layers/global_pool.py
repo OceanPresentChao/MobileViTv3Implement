@@ -8,7 +8,7 @@ from torch import Tensor
 import argparse
 from typing import List, Optional, Tuple
 
-from utils import logger
+from reference.utils import logger
 
 from .base_layer import BaseLayer
 

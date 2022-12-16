@@ -6,9 +6,9 @@
 import torch
 from functools import partial
 
-from utils import logger
-from utils.ddp_utils import is_master
-from utils.tensor_utils import image_size_from_opts
+from reference.utils import logger
+from reference.utils.ddp_utils import is_master
+from reference.utils.tensor_utils import image_size_from_opts
 
 # from .datasets import train_val_datasets, evaluation_datasets
 from .sampler import build_sampler

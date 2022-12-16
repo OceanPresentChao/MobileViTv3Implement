@@ -7,7 +7,7 @@ from torch import nn, Tensor
 from typing import Optional, Dict, Tuple, Union
 import argparse
 
-from utils import logger
+from reference.utils import logger
 
 from ... import parameter_list
 from ...layers import norm_layers_tuple, LinearLayer

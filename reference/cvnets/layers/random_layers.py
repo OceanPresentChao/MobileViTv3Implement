@@ -7,7 +7,7 @@ from torch import Tensor
 import random
 from typing import List, Optional, Tuple
 
-from utils.math_utils import bound_fn
+from reference.utils.math_utils import bound_fn
 
 from .base_layer import BaseLayer
 

@@ -35,7 +35,7 @@ for file in os.listdir(norm_dir):
     ):
         model_name = file[: file.find(".py")] if file.endswith(".py") else file
         module = importlib.import_module(
-            "cvnets.layers.normalization." + model_name)
+            "paddlepaddle.cvnets.layers.normalization." + model_name)
 
 
 def arguments_norm_layers(parser: argparse.ArgumentParser):

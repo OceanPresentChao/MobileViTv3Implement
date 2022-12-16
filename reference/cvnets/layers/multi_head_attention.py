@@ -3,7 +3,7 @@ from torch import nn, Tensor
 from typing import Optional, Tuple
 from torch.nn import functional as F
 
-from utils import logger
+from reference.utils import logger
 
 from .base_layer import BaseLayer
 from .linear_layer import LinearLayer

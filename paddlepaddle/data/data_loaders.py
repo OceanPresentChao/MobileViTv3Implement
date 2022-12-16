@@ -1,4 +1,3 @@
-import paddle
 from functools import partial
 
 from paddlepaddle.utils import logger

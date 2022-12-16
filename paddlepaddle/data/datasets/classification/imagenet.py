@@ -9,7 +9,7 @@ from .imagefolder import ImageFolder
 import paddle
 import argparse
 
-from utils import logger
+from paddlepaddle.utils import logger
 
 from .. import register_dataset
 from ..dataset_base import BaseImageDataset

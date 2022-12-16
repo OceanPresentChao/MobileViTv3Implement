@@ -28,14 +28,15 @@ def register_transformations(name, type):
             )
 
         AUGMENTAION_REGISTRY[name + "_" + type] = cls
+        print("register ",name + "_" + type)
         return cls
 
     return register_transformation_class
 
 
 def arguments_augmentation(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
-
     # add augmentation specific arguments
+    print(AUGMENTAION_REGISTRY)
     for k, v in AUGMENTAION_REGISTRY.items():
         parser = v.add_arguments(parser=parser)
 
@@ -54,3 +55,4 @@ for file in os.listdir(transform_dir):
     ):
         transform_name = file[: file.find(".py")] if file.endswith(".py") else file
         module = importlib.import_module("paddlepaddle.data.transforms." + transform_name)
+        print("import ",transform_name)

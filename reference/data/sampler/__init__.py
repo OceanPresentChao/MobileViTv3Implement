@@ -6,10 +6,10 @@
 import os
 import importlib
 from typing import Optional
-from utils import logger
+from reference.utils import logger
 import argparse
 
-from utils.ddp_utils import is_master
+from reference.utils.ddp_utils import is_master
 
 from .base_sampler import BaseSamplerDDP, BaseSamplerDP
 

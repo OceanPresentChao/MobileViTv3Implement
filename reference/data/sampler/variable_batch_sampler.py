@@ -9,8 +9,8 @@ from typing import Optional
 import numpy as np
 import math
 
-from utils import logger
-from common import DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT
+from reference.utils import logger
+from reference.common import DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT
 
 from . import register_sampler, BaseSamplerDP, BaseSamplerDDP
 from .utils import _image_batch_pairs

@@ -24,8 +24,8 @@ from torchvision.io import (
 )
 import io
 
-from utils import logger
-from utils.ddp_utils import is_start_rank_node, is_master
+from reference.utils import logger
+from reference.utils.ddp_utils import is_start_rank_node, is_master
 
 
 class BaseImageDataset(data.Dataset):

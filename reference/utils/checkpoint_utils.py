@@ -11,9 +11,9 @@ import glob
 
 from cvnets import EMA
 from optim import BaseOptim
-from utils import logger
-from utils.ddp_utils import is_master
-from utils.download_utils import get_local_path
+from reference.utils import logger
+from reference.utils.ddp_utils import is_master
+from reference.utils.download_utils import get_local_path
 
 CHECKPOINT_EXTN = "pt"
 

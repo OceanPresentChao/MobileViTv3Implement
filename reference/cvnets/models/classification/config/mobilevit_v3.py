@@ -3,8 +3,8 @@
 import math
 from typing import Dict, Sequence
 
-from utils import logger
-from utils.math_utils import make_divisible, bound_fn
+from reference.utils import logger
+from reference.utils.math_utils import make_divisible, bound_fn
 
 
 def get_configuration(opts) -> Dict:

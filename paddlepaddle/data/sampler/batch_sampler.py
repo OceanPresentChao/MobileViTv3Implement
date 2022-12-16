@@ -9,7 +9,7 @@ from typing import Optional
 
 import numpy as np
 
-from common import DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT
+from paddlepaddle.common import DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT
 
 from . import register_sampler, BaseSamplerDDP, BaseSamplerDP
 

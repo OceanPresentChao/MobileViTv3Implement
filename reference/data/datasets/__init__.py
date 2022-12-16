@@ -8,8 +8,8 @@ import importlib
 import argparse
 import glob
 
-from utils.ddp_utils import is_master
-from utils import logger
+from reference.utils.ddp_utils import is_master
+from reference.utils import logger
 
 from .dataset_base import BaseImageDataset
 

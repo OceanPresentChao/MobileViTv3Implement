@@ -6,7 +6,7 @@
 from typing import Optional, List
 import numpy as np
 
-from utils.math_utils import make_divisible
+from paddlepaddle.utils.math_utils import make_divisible
 
 
 def _image_batch_pairs(

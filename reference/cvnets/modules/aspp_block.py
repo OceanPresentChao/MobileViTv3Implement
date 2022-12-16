@@ -8,8 +8,8 @@ from torch import nn, Tensor
 from typing import Optional, Tuple
 import torch.nn.functional as F
 
-from utils import logger
-from utils.ddp_utils import is_master
+from reference.utils import logger
+from reference.utils.ddp_utils import is_master
 
 from ..layers import BaseLayer, ConvLayer, AdaptiveAvgPool2d, SeparableConv, Dropout2d
 from ..modules import BaseModule

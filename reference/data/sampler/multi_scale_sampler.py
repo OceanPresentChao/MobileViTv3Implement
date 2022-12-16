@@ -5,9 +5,9 @@
 
 import random
 import argparse
-from utils import logger
+from reference.utils import logger
 from typing import Optional
-from common import DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT
+from reference.common import DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT
 
 from . import register_sampler, BaseSamplerDP, BaseSamplerDDP
 from .utils import _image_batch_pairs

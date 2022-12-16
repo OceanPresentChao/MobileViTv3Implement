@@ -8,7 +8,7 @@ from torch import nn, Tensor
 from typing import Dict, List
 import torch.nn.functional as F
 
-from utils import logger
+from reference.utils import logger
 
 from ..layers import ConvLayer, norm_layers_tuple
 from ..modules import BaseModule

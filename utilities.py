@@ -1,7 +1,6 @@
 import paddle
 import torch
 import numpy as np
-from paddlepaddle.options.opts import get_training_arguments
 
 from paddlepaddle.cvnets.models.classification import build_classification_model as build_model_pad
 from reference.cvnets.models.classification import build_classification_model as build_model_ref
