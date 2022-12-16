@@ -39,15 +39,19 @@ class BaseLRScheduler(object):
         lr = self.get_lr(epoch=epoch, curr_iter=curr_iter)
         lr = max(0.0, lr)
         if self.lr_multipliers is not None:
-            # 问题在这！！！！
             assert len(self.lr_multipliers) == len(optimizer._param_groups)
             for g_id, param_group in enumerate(optimizer._param_groups):
-                param_group["lr"] = round(
+                param_group["learning_rate"] = round(
                     lr * self.lr_multipliers[g_id], self.round_places
                 )
+                optimizer.set_lr(round(
+                        lr * self.lr_multipliers[g_id], self.round_places
+                    ))
+                print(list(param_group.keys()))
         else:
             for param_group in optimizer._param_groups:
-                param_group["lr"] = round(lr, self.round_places)
+                param_group["learning_rate"] = round(lr, self.round_places)
+                optimizer.set_lr(round(lr, self.round_places))
         return optimizer
 
     @staticmethod
