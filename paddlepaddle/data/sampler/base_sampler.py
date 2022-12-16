@@ -3,10 +3,11 @@
 # Copyright (C) 2022 Apple Inc. All Rights Reserved.
 #
 
-import torch
-from torch.utils.data.sampler import Sampler
+import paddle
+from paddle.io import Sampler
 from typing import Optional
-import torch.distributed as dist
+from paddle.device import cuda
+import paddle.distributed as dist
 import math
 import argparse
 
@@ -30,7 +31,7 @@ class BaseSamplerDP(Sampler):
         **kwargs
     ) -> None:
         # max between 1 and number of available GPUs. 1 because for supporting CPUs
-        n_gpus: int = max(1, torch.cuda.device_count())
+        n_gpus: int = max(1, cuda.device_count())
         batch_size_gpu0: int = (
             getattr(opts, "dataset.train_batch_size0", 32)
             if is_training
@@ -100,8 +101,8 @@ class BaseSamplerDDP(Sampler):
             else getattr(opts, "dataset.val_batch_size0", 32)
         )
 
-        if not dist.is_available():
-            raise RuntimeError("Requires distributed package to be available")
+        # if not dist.is_available():
+        #     raise RuntimeError("Requires distributed package to be available")
 
         num_replicas = dist.get_world_size()
         rank = dist.get_rank()

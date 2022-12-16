@@ -3,8 +3,8 @@
 # Copyright (C) 2022 Apple Inc. All Rights Reserved.
 #
 
-import torch
-from torch import nn
+import paddle
+from paddle import nn
 from typing import Optional
 from copy import deepcopy
 import argparse
@@ -22,7 +22,7 @@ class EMA(object):
 
     def __init__(
         self,
-        model: nn.Module,
+        model: nn.Layer,
         ema_momentum: Optional[float] = 0.0005,
         device: Optional[str] = "cpu",
         *args,
@@ -42,7 +42,7 @@ class EMA(object):
     def update_parameters(self, model):
         # correct a mismatch in state dict keys
         has_module = hasattr(model, "module") and not self.ema_has_module
-        with torch.no_grad():
+        with paddle.no_grad():
             msd = model.state_dict()
             for k, ema_v in self.ema_model.state_dict().items():
                 if has_module:

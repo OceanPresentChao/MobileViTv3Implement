@@ -3,9 +3,8 @@
 # Copyright (C) 2022 Apple Inc. All Rights Reserved.
 #
 
-import torch
 from typing import Optional, Union, List
-from torch.utils.data import DataLoader
+from paddle.io import DataLoader
 
 from ..sampler.base_sampler import BaseSamplerDP, BaseSamplerDDP
 from ..datasets.dataset_base import BaseImageDataset
@@ -20,8 +19,6 @@ class CVNetsDataLoader(DataLoader):
         batch_size: int,
         batch_sampler: Union[BaseSamplerDP, BaseSamplerDDP],
         num_workers: Optional[int] = 1,
-        pin_memory: Optional[bool] = False,
-        persistent_workers: Optional[bool] = False,
         collate_fn: Optional[any] = None,
         prefetch_factor: Optional[int] = 2,
         *args,
@@ -32,8 +29,6 @@ class CVNetsDataLoader(DataLoader):
             batch_size=batch_size,
             batch_sampler=batch_sampler,
             num_workers=num_workers,
-            pin_memory=pin_memory,
-            persistent_workers=persistent_workers,
             collate_fn=collate_fn,
             prefetch_factor=prefetch_factor,
         )
